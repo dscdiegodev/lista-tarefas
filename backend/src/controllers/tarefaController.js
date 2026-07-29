@@ -87,9 +87,30 @@ async function deletar(req, res) {
     }
 }
 
+async function adicionarTag(req, res) {
+    try {
+        const tarefaId = req.params.id;
+        const { tagId } = req.body;
+        const usuarioId = req.usuarioId;
+
+        const resultado = await tarefaService.adicionarTagNaTarefa(tarefaId, tagId, usuarioId);
+
+        return res.status(201).json({
+            sucesso: true,
+            ...resultado
+        });
+    } catch (error) {
+        return res.status(400).json({
+            sucesso: false,
+            erro: error.message
+        });
+    }
+}
+
 module.exports = {
     criar,
     listar,
     atualizar,
-    deletar
+    deletar,
+    adicionarTag
 };
