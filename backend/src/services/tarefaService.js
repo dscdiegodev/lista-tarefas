@@ -114,9 +114,44 @@ async function deletarTarefa(tarefaId, usuarioId) {
     return { mensagem: 'Tarefa excluída com sucesso!' };
 }
 
+async function adicionarTagNaTarefa(tarefaId, tagId, usuarioId) {
+    const [tarefa] = await pool.execute(
+        `SELECT id FROM tarefas WHERE id = ? AND id_usuario = ?`,
+        [tarefaId, usuarioId]
+    );
+
+    if (tarefa.length === 0) {
+        throw new Error('Tarefa não encontrada ou você não tem permissão.');
+    }
+
+    const [tag] = await pool.execute(
+        `SELECT id FROM tags WHERE id = ? AND id_usuario = ?`,
+        [tagId, usuarioId]
+    );
+
+    if (tag.length === 0) {
+        throw new Error('Tag não encontrada ou você não tem permissão.');
+    }
+
+    try {
+        await pool.execute(
+            `INSERT INTO tarefa_tags (id_tarefa, id_tag) VALUES (?, ?)`,
+            [tarefaId, tagId]
+        );
+
+        return { mensagem: 'Tag associada à tarefa com sucesso!' };
+    } catch (error) {
+        if (error.code === 'ER_DUP_ENTRY') {
+            throw new Error('Esta tag já está associada a esta tarefa.');
+        }
+        throw new Error('Erro ao associar tag à tarefa.');
+    }
+}
+
 module.exports = {
     criarTarefa,
     listarTarefasPorUsuario,
     atualizarTarefa,
-    deletarTarefa
+    deletarTarefa,
+    adicionarTagNaTarefa
 };
