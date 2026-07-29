@@ -38,19 +38,20 @@ async function listarTagsPorUsuario(usuarioId) {
 async function atualizarTag(tagId, dados, usuarioId) {
     const { nome } = dados;
 
-    if(!nome) {
+    if (!nome) {
         throw new Error('O nome da tag é obrigatório para atualização');
     }
 
-    const [resultado] = await pool.execute(
+    try {
+        const [resultado] = await pool.execute(
             `UPDATE tags SET nome = ? WHERE id = ? AND id_usuario = ?`,
             [nome, tagId, usuarioId]
         );
 
         if (resultado.affectedRows === 0) {
-            throw new Error('Tag não encontrada ou você não permissão para atualizá-la!');
+            throw new Error('Tag não encontrada ou você não tem permissão para atualizá-la!');
         }
-
+        
         return {
             mensagem: 'Tag atualizada com sucesso.',
             dados: {
@@ -59,6 +60,13 @@ async function atualizarTag(tagId, dados, usuarioId) {
                 id_usuario: usuarioId
             }
         };
+
+    } catch (error) {
+        if (error.code === 'ER_DUP_ENTRY') {
+            throw new Error('Você já possui outra tag com este nome.');
+        }
+        throw error;
+    }
 }
 
 async function deletarTag(tagId, usuarioId) {
