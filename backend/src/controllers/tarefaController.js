@@ -107,10 +107,31 @@ async function adicionarTag(req, res) {
     }
 }
 
+async function removerTag(req, res) {
+    try {
+        const tarefaId = req.params.id;
+        const tagId = req.params.tagId;
+        const usuarioId = req.usuarioId;
+
+        const resultado = await tarefaService.removerTagDaTarefa(tarefaId, tagId, usuarioId);
+
+        return res.status(200).json({
+            sucesso: true,
+            ...resultado
+        });
+    } catch (error) {
+        return res.status(400).json({
+            sucesso: false,
+            erro: error.message
+        });
+    }
+}
+
 module.exports = {
     criar,
     listar,
     atualizar,
     deletar,
-    adicionarTag
+    adicionarTag,
+    removerTag
 };
