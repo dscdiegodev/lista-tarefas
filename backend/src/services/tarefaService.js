@@ -37,9 +37,10 @@ async function criarTarefa(dadosTarefa, usuarioId) {
 
 async function listarTarefasPorUsuario(usuarioId, filtros = {}) {
     let query = `
-        SELECT t.*, c.nome as categoria_nome
+        SELECT DISTINCT t.*, c.nome as categoria_nome
         FROM tarefas t
         LEFT JOIN categorias c ON t.id_categoria = c.id
+        LEFT JOIN tarefa_tags tt ON t.id = tt.id_tarefa
         WHERE t.id_usuario = ?`;
 
     const params = [usuarioId];
@@ -57,6 +58,11 @@ async function listarTarefasPorUsuario(usuarioId, filtros = {}) {
     if (filtros.prioridade) {
         query += ` AND t.prioridade = ?`;
         params.push(filtros.prioridade);
+    }
+
+    if (filtros.tagId) {
+        query += ` AND tt.id_tag = ?`;
+        params.push(filtros.tagId);
     }
 
     query += ` ORDER BY t.prazo ASC`;
