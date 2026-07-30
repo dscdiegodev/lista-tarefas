@@ -67,6 +67,12 @@ async function listarTarefasPorUsuario(usuarioId, filtros = {}) {
 
     query += ` ORDER BY t.prazo ASC`;
 
+    const pagina = parseInt(filtros.pagina) || 1;
+    const limite = parseInt(filtros.limite) || 10;
+    const offset = (pagina - 1) * limite;
+
+    query += ` LIMIT ${Number(limite)} OFFSET ${Number(offset)}`;
+
     const [tarefas] = await pool.execute(query, params);
 
     const tarefasComTags = await Promise.all(
