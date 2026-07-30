@@ -62,7 +62,25 @@ async function listarTarefasPorUsuario(usuarioId, filtros = {}) {
     query += ` ORDER BY t.prazo ASC`;
 
     const [tarefas] = await pool.execute(query, params);
-    return tarefas;
+
+    const tarefasComTags = await Promise.all(
+        tarefas.map(async (tarefa) => {
+            const [tags] = await pool.execute(
+                `SELECT t.id, t.nome
+                 FROM tags t
+                 JOIN tarefa_tags tt ON t.id = tt.id_tag
+                 WHERE tt.id_tarefa = ?`,
+                [tarefa.id]
+            );
+
+            return {
+                ...tarefa,
+                tags
+            };
+        })
+    );
+
+    return tarefasComTags;
 }
 
 async function atualizarTarefa(tarefaId, dadosAtualizados, usuarioId) {
