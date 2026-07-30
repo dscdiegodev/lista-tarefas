@@ -1,4 +1,5 @@
 const express = require('express');
+const swaggerDocs = require('./config/swagger');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -16,6 +17,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tarefas', tarefaRoutes);
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/tags', tagRoutes);
+
+swaggerDocs(app);
 
 app.get('/', (req, res) => {
     return res.json({ status: 'API Lista de Tarefas Sofisticada rodando com sucesso!' });
