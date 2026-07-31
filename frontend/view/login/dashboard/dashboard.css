@@ -1,0 +1,57 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 20px;
+}
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+h2 {
+    margin: 0;
+    color: #333;
+}
+.btn-sair {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-sair:hover {
+    background-color: #c9302c;
+}
+.tabela-tarefas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+.tabela-tarefas th, .tabela-tarefas td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+.tabela-tarefas th {
+    background-color: #f8f9fa;
+    color: #333;
+}
+.mensagem {
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #666;
+}

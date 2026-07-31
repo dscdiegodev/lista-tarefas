@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Minhas Tarefas</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h2>Minhas Tarefas</h2>
+            <button id="btnLogout" class="btn-sair">Sair</button>
+        </header>
+
+        <div class="content">
+            <div id="mensagem" class="mensagem"></div>
+            
+            <table class="tabela-tarefas">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Descrição</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="listaTarefas">
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
