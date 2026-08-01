@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Minhas Tarefas</title>
     <link rel="stylesheet" href="dashboard.css">
 </head>
+
 <body>
 
     <div class="container">
@@ -16,7 +18,17 @@
 
         <div class="content">
             <div id="mensagem" class="mensagem"></div>
-            
+
+            <div class="form-container">
+                <h3>Nova Tarefa</h3>
+                <form id="formNovaTarefa">
+                    <input type="text" id="tituloTarefa" placeholder="Título da tarefa" required>
+                    <input type="text" id="descricaoTarefa" placeholder="Descrição da tarefa">
+                    <input type="date" id="prazoTarefa" required>
+                    <button type="submit" class="btn-adicionar">Adicionar Tarefa</button>
+                </form>
+            </div>
+
             <table class="tabela-tarefas">
                 <thead>
                     <tr>
@@ -26,7 +38,7 @@
                     </tr>
                 </thead>
                 <tbody id="listaTarefas">
-                    
+
                 </tbody>
             </table>
         </div>
@@ -34,4 +46,5 @@
 
     <script src="dashboard.js"></script>
 </body>
+
 </html>
