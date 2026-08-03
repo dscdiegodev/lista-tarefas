@@ -25,6 +25,11 @@
                     <input type="text" id="tituloTarefa" placeholder="Título da tarefa" required>
                     <input type="text" id="descricaoTarefa" placeholder="Descrição da tarefa">
                     <input type="date" id="prazoTarefa" required>
+
+                    <select id="categoriaTarefa">
+                        <option value="">Selecione uma categoria (Opcional)</option>
+                    </select>
+
                     <button type="submit" class="btn-adicionar">Adicionar Tarefa</button>
                 </form>
             </div>
@@ -34,7 +39,9 @@
                     <tr>
                         <th>Título</th>
                         <th>Descrição</th>
+                        <th>Categoria</th>
                         <th>Status</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody id="listaTarefas">
