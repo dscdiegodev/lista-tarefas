@@ -77,8 +77,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (!listaDeTarefas || listaDeTarefas.length === 0) {
                     listaTarefas.innerHTML = `<tr><td colspan="5" style="text-align: center;">Nenhuma tarefa encontrada.</td></tr>`;
+
+                    document.getElementById('totalTarefas').innerText = 0;
+                    document.getElementById('totalConcluidas').innerText = 0;
+                    document.getElementById('totalPendentes').innerText = 0;
                     return;
                 }
+
+                const total = listaDeTarefas.length;
+                const concluidas = listaDeTarefas.filter(t => t.status === 'Concluída').length;
+                const pendentes = total - concluidas;
+
+                document.getElementById('totalTarefas').innerText = total;
+                document.getElementById('totalConcluidas').innerText = concluidas;
+                document.getElementById('totalPendentes').innerText = pendentes;
 
                 if (listaDeTarefas && ordenacao) {
                     listaDeTarefas.sort((a, b) => {
