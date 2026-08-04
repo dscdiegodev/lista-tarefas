@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Captura os valores dos filtros da tela
             const statusFiltro = document.getElementById('filtroStatus')?.value || '';
             const categoriaFiltro = document.getElementById('filtroCategoria')?.value || '';
+            const ordenacao = document.getElementById('ordenarPor')?.value || ''
 
             // Constrói a URL dinamicamente com os parâmetros de consulta (Query Params)
             let url = 'http://localhost:3000/api/tarefas?';
@@ -77,6 +78,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!listaDeTarefas || listaDeTarefas.length === 0) {
                     listaTarefas.innerHTML = `<tr><td colspan="5" style="text-align: center;">Nenhuma tarefa encontrada.</td></tr>`;
                     return;
+                }
+
+                if (listaDeTarefas && ordenacao) {
+                    listaDeTarefas.sort((a, b) => {
+                        const dataA = new Date(a.prazo);
+                        const dataB = new Date(b.prazo);
+                        return ordenacao === 'asc' ? dataA - dataB : dataB - dataA;
+                    });
                 }
 
                 listaTarefas.innerHTML = '';
@@ -210,6 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('filtroStatus')?.addEventListener('change', carregarTarefas);
     document.getElementById('filtroCategoria')?.addEventListener('change', carregarTarefas);
+    document.getElementById('ordenarPor')?.addEventListener('change', carregarTarefas);
     // Evento de alteração do status via checkbox na tabela
     listaTarefas.addEventListener('change', async (e) => {
         if (e.target.classList.contains('check-concluido')) {
