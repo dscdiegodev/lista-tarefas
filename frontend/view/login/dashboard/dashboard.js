@@ -29,13 +29,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             const resultado = await resposta.json();
 
             if (resposta.ok && resultado.dados) {
-                selectCategoria.innerHTML = '<option value="">Selecione uma categoria (Opcional)</option>';
-                resultado.dados.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat.id;
-                    option.textContent = cat.nome;
-                    selectCategoria.appendChild(option);
-                });
+                const optionsHtml = '<option value="">Selecione uma categoria (Opcional)</option>' +
+                    resultado.dados.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('');
+
+                selectCategoria.innerHTML = optionsHtml;
+
+                const filtroCategoria = document.getElementById('filtroCategoria');
+                if (filtroCategoria) {
+                    filtroCategoria.innerHTML = '<option value="">Todas as Categorias</option>' +
+                        resultado.dados.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('');
+                }
             }
         } catch (erro) {
             console.error('Erro ao carregar categorias:', erro);
@@ -47,7 +50,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             mensagemDiv.innerText = 'Carregando tarefas...';
 
-            const resposta = await fetch('http://localhost:3000/api/tarefas', {
+            // Captura os valores dos filtros da tela
+            const statusFiltro = document.getElementById('filtroStatus')?.value || '';
+            const categoriaFiltro = document.getElementById('filtroCategoria')?.value || '';
+
+            // Constrói a URL dinamicamente com os parâmetros de consulta (Query Params)
+            let url = 'http://localhost:3000/api/tarefas?';
+            const params = new URLSearchParams();
+            if (statusFiltro) params.append('status', statusFiltro);
+            if (categoriaFiltro) params.append('id_categoria', categoriaFiltro);
+
+            const resposta = await fetch(url + params.toString(), {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -95,13 +108,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 mensagemDiv.style.color = '#d9534f';
                 mensagemDiv.innerText = respostaServidor.mensagem || 'Erro ao carregar as tarefas.';
-
-                if (resposta.status === 401) {
-                    localStorage.removeItem('token');
-                    setTimeout(() => {
-                        window.location.href = '../login/login.html';
-                    }, 2000);
-                }
             }
         } catch (erro) {
             console.error(erro);
@@ -202,6 +208,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    document.getElementById('filtroStatus')?.addEventListener('change', carregarTarefas);
+    document.getElementById('filtroCategoria')?.addEventListener('change', carregarTarefas);
     // Evento de alteração do status via checkbox na tabela
     listaTarefas.addEventListener('change', async (e) => {
         if (e.target.classList.contains('check-concluido')) {
@@ -247,6 +255,43 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     });
+
+    // Evento para criar uma nova categoria
+    const formNovaCategoria = document.getElementById('formNovaCategoria');
+    if (formNovaCategoria) {
+        formNovaCategoria.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nomeInput = document.getElementById('nomeNovaCategoria');
+            const nomeCategoria = nomeInput.value.trim();
+
+            if (!nomeCategoria) return;
+
+            try {
+                const resposta = await fetch('http://localhost:3000/api/categorias', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nome: nomeCategoria })
+                });
+
+                const resultado = await resposta.json();
+
+                if (resposta.ok) {
+                    nomeInput.value = '';
+                    carregarCategorias();
+                    alert('Categoria criada com sucesso!');
+                } else {
+                    alert(resultado.mensagem || 'Erro ao criar categoria.');
+                }
+            } catch (erro) {
+                console.error('Erro na requisição de categoria:', erro);
+                alert('Não foi possível conectar ao servidor.');
+            }
+        });
+    }
 
     carregarCategorias();
     carregarTarefas();
