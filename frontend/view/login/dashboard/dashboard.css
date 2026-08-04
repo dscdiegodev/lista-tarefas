@@ -4,14 +4,16 @@ body {
     margin: 0;
     padding: 20px;
 }
+
 .container {
     max-width: 800px;
     margin: 0 auto;
     background: white;
     padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+
 header {
     display: flex;
     justify-content: space-between;
@@ -20,10 +22,12 @@ header {
     padding-bottom: 15px;
     margin-bottom: 20px;
 }
+
 h2 {
     margin: 0;
     color: #333;
 }
+
 .btn-sair {
     background-color: #d9534f;
     color: white;
@@ -33,23 +37,29 @@ h2 {
     cursor: pointer;
     font-size: 14px;
 }
+
 .btn-sair:hover {
     background-color: #c9302c;
 }
+
 .tabela-tarefas {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
 }
-.tabela-tarefas th, .tabela-tarefas td {
+
+.tabela-tarefas th,
+.tabela-tarefas td {
     border: 1px solid #ddd;
     padding: 12px;
     text-align: left;
 }
+
 .tabela-tarefas th {
     background-color: #f8f9fa;
     color: #333;
 }
+
 .mensagem {
     margin-bottom: 15px;
     font-size: 14px;
@@ -63,11 +73,13 @@ h2 {
     margin-bottom: 20px;
     border: 1px solid #eee;
 }
+
 .form-container h3 {
     margin-top: 0;
     font-size: 16px;
     color: #333;
 }
+
 .form-container input {
     width: 100%;
     padding: 10px;
@@ -76,6 +88,7 @@ h2 {
     border-radius: 4px;
     box-sizing: border-box;
 }
+
 .btn-adicionar {
     background-color: #5cb85c;
     color: white;
@@ -85,6 +98,7 @@ h2 {
     cursor: pointer;
     font-size: 14px;
 }
+
 .btn-adicionar:hover {
     background-color: #4cae4c;
 }
@@ -98,6 +112,7 @@ h2 {
     cursor: pointer;
     font-size: 12px;
 }
+
 .btn-excluir:hover {
     background-color: #c9302c;
 }
@@ -112,6 +127,27 @@ h2 {
     font-size: 12px;
     margin-right: 5px;
 }
+
 .btn-editar:hover {
     background-color: #ec971f;
+}
+
+.categoria-section {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+#formNovaCategoria {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.filtros-container {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 15px
 }
