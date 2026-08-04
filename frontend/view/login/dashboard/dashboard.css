@@ -42,6 +42,10 @@ h2 {
     background-color: #c9302c;
 }
 
+
+------- 
+
+
 .tabela-tarefas {
     width: 100%;
     border-collapse: collapse;
@@ -146,8 +150,95 @@ h2 {
     margin-top: 10px;
 }
 
+#formNovaCategoria input {
+    flex: 1;
+    padding: 8px;
+}
+
+.btn-categoria {
+    padding: 8px 15px;
+    background: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-categoria:hover {
+    background: #4cae4c;
+}
+
 .filtros-container {
     margin-bottom: 20px;
     display: flex;
     gap: 15px
+}
+
+.resumo-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.total-tarefas {
+    flex: 1;
+    background: #e9ecef;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.total-tarefas h4 {
+    margin: 0;
+    color: #555;
+    font-size: 14px;
+}
+
+.total-tarefas p {
+    margin: 5px 0 0 0;
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+}
+
+.total-concluido {
+    flex: 1;
+    background: #d4edda;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.total-concluido h4 {
+    margin: 0;
+    color: #155724;
+    font-size: 14px;
+}
+
+.total-concluido p {
+    margin: 5px 0 0 0;
+    font-size: 22px;
+    font-weight: bold;
+    color: #155724;
+}
+
+.total-pendente {
+    flex: 1;
+    background: #fff3cd;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.total-pendente h4 {
+    margin: 0;
+    color: #856404;
+    font-size: 14px;
+}
+
+.total-pendente p {
+    margin: 5px 0 0 0;
+    font-size: 22px;
+    font-weight: bold;
+    color: #856404;
 }
