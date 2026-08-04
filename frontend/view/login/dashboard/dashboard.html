@@ -19,6 +19,24 @@
         <div class="content">
             <div id="mensagem" class="mensagem"></div>
 
+            <div class="resumo-container">
+                <div class="total-tarefas">
+                    <h4>Total de Tarefas</h4>
+                    <p id="totalTarefas">0
+                    </p>
+                </div>
+
+                <div class="total-concluido">
+                    <h4>Concluídas</h4>
+                    <p id="totalConcluidas">0</p>
+                </div>
+
+                <div class="total-pendente">
+                    <h4>Pendentes</h4>
+                    <p id="totalPendentes">0</p>
+                </div>
+            </div>
+
             <div class="form-container">
                 <h3>Nova Tarefa</h3>
                 <form id="formNovaTarefa">
@@ -36,11 +54,8 @@
                 <div class="categoria-section">
                     <h3>Gerenciar Categorias</h3>
                     <form id="formNovaCategoria">
-                        <input type="text" id="nomeNovaCategoria" placeholder="Nome da nova categoria" required
-                            style="flex: 1; padding: 8px;">
-                        <button type="submit"
-                            style="padding: 8px 15px; background: #0275d8; color: white; border: none; border-radius: 4px; cursor: pointer;">Adicionar
-                            Categoria</button>
+                        <input type="text" id="nomeNovaCategoria" placeholder="Nome da nova categoria" required>
+                        <button class="btn-categoria" type="submit">Adicionar Categoria</button>
                     </form>
                 </div>
             </div>
