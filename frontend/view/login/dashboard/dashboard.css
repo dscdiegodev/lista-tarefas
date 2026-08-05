@@ -238,3 +238,13 @@ h2 {
     display: flex;
     gap: 15px
 }
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}

@@ -315,6 +315,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    function mostrarToast(mensagem, tipo = 'sucesso') {
+        // Se a mensagem não foi informada ou veio vazia, nem exibe o toast para não quebrar a tela
+        if (!mensagem) return;
+
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.innerText = mensagem;
+
+        // Estilos base do toast
+        toast.style.padding = '12px 20px';
+        toast.style.borderRadius = '6px';
+        toast.style.color = '#fff';
+        toast.style.fontSize = '14px';
+        toast.style.fontWeight = '500';
+        toast.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+        toast.style.transition = 'opacity 0.3s ease';
+        toast.style.opacity = '0';
+
+        // Cores de acordo com o tipo
+        if (tipo === 'sucesso') {
+            toast.style.backgroundColor = '#28a745';
+        } else if (tipo === 'erro') {
+            toast.style.backgroundColor = '#dc3545';
+        } else {
+            toast.style.backgroundColor = '#ffc107';
+            toast.style.color = '#333';
+        }
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '1';
+        }, 10);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    }
+
     carregarCategorias();
     carregarTarefas();
+    mostrarToast('Bem-vindo ao painel!', 'sucesso');
+
 });
