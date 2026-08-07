@@ -117,14 +117,14 @@ async function atualizarTarefa(tarefaId, dadosAtualizados, usuarioId) {
              id_categoria = COALESCE(?, id_categoria)
          WHERE id = ? AND id_usuario = ?`,
         [
-            titulo,
-            descricao || null,
-            prazo,
-            prioridade || 'Média',
-            status || 'Pendente',
-            id_categoria || null,
+            titulo !== undefined ? titulo : null,
+            descricao !== undefined ? descricao : null,
+            prazo !== undefined ? prazo : null,
+            prioridade !== undefined ? prioridade : null,
+            status !== undefined ? status : null,
+            id_categoria !== undefined ? id_categoria : null,
             tarefaId,
-            usuarioId
+            usuarioId,
         ]
     );
 
