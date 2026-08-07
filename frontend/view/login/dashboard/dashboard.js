@@ -232,6 +232,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('filtroStatus')?.addEventListener('change', carregarTarefas);
     document.getElementById('filtroCategoria')?.addEventListener('change', carregarTarefas);
     document.getElementById('ordenarPor')?.addEventListener('change', carregarTarefas);
+
     // Evento de alteração do status via checkbox na tabela
     listaTarefas.addEventListener('change', async (e) => {
         if (e.target.classList.contains('check-concluido')) {
@@ -278,45 +279,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Evento para criar uma nova categoria
-    const formNovaCategoria = document.getElementById('formNovaCategoria');
-    if (formNovaCategoria) {
-        formNovaCategoria.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const nomeInput = document.getElementById('nomeNovaCategoria');
-            const nomeCategoria = nomeInput.value.trim();
-
-            if (!nomeCategoria) return;
-
-            try {
-                const resposta = await fetch('http://localhost:3000/api/categorias', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ nome: nomeCategoria })
-                });
-
-                const resultado = await resposta.json();
-
-                if (resposta.ok) {
-                    nomeInput.value = '';
-                    carregarCategorias();
-                    alert('Categoria criada com sucesso!');
-                } else {
-                    alert(resultado.mensagem || 'Erro ao criar categoria.');
-                }
-            } catch (erro) {
-                console.error('Erro na requisição de categoria:', erro);
-                alert('Não foi possível conectar ao servidor.');
-            }
-        });
-    }
-
     function mostrarToast(mensagem, tipo = 'sucesso') {
-        // Se a mensagem não foi informada ou veio vazia, nem exibe o toast para não quebrar a tela
         if (!mensagem) return;
 
         const container = document.getElementById('toastContainer');
@@ -325,7 +288,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const toast = document.createElement('div');
         toast.innerText = mensagem;
 
-        // Estilos base do toast
         toast.style.padding = '12px 20px';
         toast.style.borderRadius = '6px';
         toast.style.color = '#fff';
@@ -335,7 +297,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         toast.style.transition = 'opacity 0.3s ease';
         toast.style.opacity = '0';
 
-        // Cores de acordo com o tipo
         if (tipo === 'sucesso') {
             toast.style.backgroundColor = '#28a745';
         } else if (tipo === 'erro') {
@@ -363,4 +324,61 @@ document.addEventListener('DOMContentLoaded', async () => {
     carregarTarefas();
     mostrarToast('Bem-vindo ao painel!', 'sucesso');
 
+    // =========================================================================
+    // [APRENDIZADO] ONDE ESTAVA O ERRO DE DUPLICIDADE (ERRO 400)?
+    // No seu código anterior, você tinha duas lógicas separadas para o cadastro 
+    // de categorias: uma colada no meio do código e outra no final. 
+    // Isso fazia o formulário disparar 2 requisições POST idênticas ao mesmo tempo.
+    // A 1ª passava com sucesso, e a 2ª quebrava dando erro 400 de duplicidade.
+    // 
+    // SOLUÇÃO: Unificamos tudo em uma única função bem estruturada abaixo, 
+    // vinculando o evento de 'submit' apenas uma única vez no final.
+    // =========================================================================
+
+    async function adicionarCategoria(evento) {
+        evento.preventDefault();
+
+        const nomeInput = document.getElementById('nomeNovaCategoria');
+        const nomeCategoria = nomeInput.value.trim();
+
+        // Pega o valor do input de cor (caso exista na tela)
+        const corInput = document.getElementById('corNovaCategoria');
+        const corCategoria = corInput ? corInput.value : '#3498db';
+
+        if (!nomeCategoria) return;
+
+        try {
+            const resposta = await fetch('http://localhost:3000/api/categorias', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nome: nomeCategoria,
+                    cor: corCategoria
+                })
+            });
+
+            const resultado = await resposta.json();
+            console.log("Retorno do servidor após alteração:", resultado);
+
+            if (resposta.ok) {
+                mostrarToast('Categoria adicionada com sucesso!', 'sucesso');
+                nomeInput.value = '';
+                carregarCategorias(); // Atualiza os selects com a nova categoria
+            } else {
+                mostrarToast(resultado.erro || resultado.mensagem || 'Erro ao adicionar a categoria.', 'erro');
+            }
+        } catch (erro) {
+            console.error(erro);
+            mostrarToast('Não foi possível salvar a alteração', 'erro');
+        }
+    }
+
+    // [APRENDIZADO] Registro único do evento de submit para evitar disparos duplos
+    const formNovaCategoria = document.getElementById('formNovaCategoria');
+    if (formNovaCategoria) {
+        formNovaCategoria.addEventListener('submit', adicionarCategoria);
+    }
 });
