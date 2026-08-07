@@ -19,6 +19,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '../login/login.html';
     });
 
+    // Função genérica de Toast (movida para o topo para ser acessível em todo o escopo)
+    function mostrarToast(mensagem, tipo = 'sucesso') {
+        if (!mensagem) return;
+
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.innerText = mensagem;
+
+        toast.style.padding = '12px 20px';
+        toast.style.borderRadius = '6px';
+        toast.style.color = '#fff';
+        toast.style.fontSize = '14px';
+        toast.style.fontWeight = '500';
+        toast.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+        toast.style.transition = 'opacity 0.3s ease';
+        toast.style.opacity = '0';
+        toast.style.marginTop = '8px';
+
+        if (tipo === 'sucesso') {
+            toast.style.backgroundColor = '#28a745';
+        } else if (tipo === 'erro') {
+            toast.style.backgroundColor = '#dc3545';
+        } else {
+            toast.style.backgroundColor = '#ffc107';
+            toast.style.color = '#333';
+        }
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '1';
+        }, 10);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    }
+
     // Função para carregar categorias
     async function carregarCategorias() {
         try {
@@ -29,15 +72,40 @@ document.addEventListener('DOMContentLoaded', async () => {
             const resultado = await resposta.json();
 
             if (resposta.ok && resultado.dados) {
+                // 1. Preenche o select do formulário de tarefas
                 const optionsHtml = '<option value="">Selecione uma categoria (Opcional)</option>' +
                     resultado.dados.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('');
-
                 selectCategoria.innerHTML = optionsHtml;
 
+                // 2. Preenche o select do filtro por categoria
                 const filtroCategoria = document.getElementById('filtroCategoria');
                 if (filtroCategoria) {
                     filtroCategoria.innerHTML = '<option value="">Todas as Categorias</option>' +
                         resultado.dados.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('');
+                }
+
+                // 3. Renderiza a lista visual na seção "Gerenciar Categorias"
+                const listaCategoriasEl = document.getElementById('listaCategorias');
+                if (listaCategoriasEl) {
+                    if (resultado.dados.length === 0) {
+                        listaCategoriasEl.innerHTML = '<tr><td colspan="3" style="text-align: center; color: gray;">Nenhuma categoria cadastrada.</td></tr>';
+                    } else {
+                        listaCategoriasEl.innerHTML = resultado.dados.map(cat => `
+                            <tr>
+                                <td>
+                                    <span style="display: inline-block; width: 12px; height: 12px; background-color: ${cat.cor || '#3498db'}; border-radius: 50%; margin-right: 8px; vertical-align: middle;"></span>
+                                    <strong>${cat.nome}</strong>
+                                </td>
+                                <td><code>${cat.cor || 'Padrão'}</code></td>
+                                <td>
+                                    <div style="display: flex; gap: 5px; align-items: center;">
+                                        <button class="btn-editar" data-id="${cat.id}" data-nome="${cat.nome}" data-cor="${cat.cor || ''}" style="padding: 5px 10px; background: #f0ad4e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Editar</button>
+                                        <button class="btn-excluir" data-id="${cat.id}" style="padding: 5px 10px; background: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Excluir</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
                 }
             }
         } catch (erro) {
@@ -45,17 +113,87 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // Ouvinte de cliques para Editar e Excluir Categorias na lista visual
+    const listaCategoriasContainer = document.getElementById('listaCategorias');
+    if (listaCategoriasContainer) {
+        listaCategoriasContainer.addEventListener('click', async (e) => {
+            const id = e.target.getAttribute('data-id');
+
+            // EXCLUIR CATEGORIA
+            if (e.target.classList.contains('btn-excluir-categoria')) {
+                if (confirm('Tem certeza que deseja excluir esta categoria? As tarefas vinculadas a ela ficarão sem categoria.')) {
+                    try {
+                        const resposta = await fetch(`http://localhost:3000/api/categorias/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const resultado = await resposta.json();
+
+                        if (resposta.ok) {
+                            mostrarToast('Categoria excluída com sucesso!', 'sucesso');
+                            carregarCategorias();
+                            carregarTarefas(); // Atualiza a tabela para refletir mudanças nas tarefas
+                        } else {
+                            mostrarToast(resultado.erro || resultado.mensagem || 'Erro ao excluir categoria.', 'erro');
+                        }
+                    } catch (erro) {
+                        console.error('Erro ao excluir categoria:', erro);
+                        mostrarToast('Não foi possível conectar ao servidor.', 'erro');
+                    }
+                }
+            }
+
+            // EDITAR CATEGORIA
+            if (e.target.classList.contains('btn-editar-categoria')) {
+                const nomeAtual = e.target.getAttribute('data-nome');
+                const corAtual = e.target.getAttribute('data-cor');
+
+                const novoNome = prompt('Digite o novo nome da categoria:', nomeAtual);
+                if (novoNome === null) return; // Se clicou em cancelar
+
+                const novaCor = prompt('Digite a nova cor (ex: #3498db):', corAtual);
+                if (novaCor === null) return;
+
+                if (!novoNome.trim()) {
+                    alert('O nome da categoria não pode ficar vazio.');
+                    return;
+                }
+
+                try {
+                    const resposta = await fetch(`http://localhost:3000/api/categorias/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ nome: novoNome.trim(), cor: novaCor.trim() })
+                    });
+                    const resultado = await resposta.json();
+
+                    if (resposta.ok) {
+                        mostrarToast('Categoria atualizada com sucesso!', 'sucesso');
+                        carregarCategorias();
+                        carregarTarefas();
+                    } else {
+                        mostrarToast(resultado.erro || resultado.mensagem || 'Erro ao atualizar categoria.', 'erro');
+                    }
+                } catch (erro) {
+                    console.error('Erro ao atualizar categoria:', erro);
+                    mostrarToast('Não foi possível conectar ao servidor.', 'erro');
+                }
+            }
+        });
+    }
+
     // Função para buscar e renderizar as tarefas
     async function carregarTarefas() {
         try {
             mensagemDiv.innerText = 'Carregando tarefas...';
 
-            // Captura os valores dos filtros da tela
             const statusFiltro = document.getElementById('filtroStatus')?.value || '';
             const categoriaFiltro = document.getElementById('filtroCategoria')?.value || '';
-            const ordenacao = document.getElementById('ordenarPor')?.value || ''
+            const ordenacao = document.getElementById('ordenarPor')?.value || '';
 
-            // Constrói a URL dinamicamente com os parâmetros de consulta (Query Params)
             let url = 'http://localhost:3000/api/tarefas?';
             const params = new URLSearchParams();
             if (statusFiltro) params.append('status', statusFiltro);
@@ -106,7 +244,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     tr.innerHTML = `
                         <td>${tarefa.titulo || tarefa.nome || 'Sem título'}</td>
                         <td>${tarefa.descricao || 'Sem descrição'}</td>
-                        <td>${tarefa.categoria_nome || 'Geral'}</td>
+                        <td>
+                            <span style="background-color: ${tarefa.categoria_cor || '#3498db'}; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">
+                                ${tarefa.categoria_nome || 'Geral'}
+                            </span>
+                        </td>
                         <td>
                             <input type="checkbox" class="check-concluido" data-id="${tarefa.id}" ${tarefa.status === 'Concluída' ? 'checked' : ''}>
                             <span style="${tarefa.status === 'Concluída' ? 'text-decoration: line-through; color: gray;' : ''}">
@@ -114,13 +256,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </span>
                         </td>
                         <td>
-                            <button class="btn-editar"
-                                data-id="${tarefa.id}"
-                                data-titulo="${tarefa.titulo || ''}"
-                                data-descricao="${tarefa.descricao || ''}"
-                                data-prazo="${tarefa.prazo ? tarefa.prazo.split('T')[0] : ''}"
-                                data-categoria="${tarefa.id_categoria || ''}">Editar</button>
-                            <button class="btn-excluir" data-id="${tarefa.id}">Excluir</button>
+                            <div style="display: flex; gap: 5px; align-items: center;">
+                                <button class="btn-editar"
+                                    data-id="${tarefa.id}"
+                                    data-titulo="${tarefa.titulo || ''}"
+                                    data-descricao="${tarefa.descricao || ''}"
+                                    data-prazo="${tarefa.prazo ? tarefa.prazo.split('T')[0] : ''}"
+                                    data-categoria="${tarefa.id_categoria || ''}"
+                                    style="padding: 5px 10px; background: #f0ad4e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Editar</button>
+                                <button class="btn-excluir"
+                                    data-id="${tarefa.id}"
+                                    style="padding: 5px 10px; background: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Excluir</button>
+                            </div>
                         </td>
                     `;
                     listaTarefas.appendChild(tr);
@@ -137,7 +284,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Evento de envio do formulário (Criar / Atualizar)
+    // Evento de envio do formulário (Criar / Atualizar Tarefa) - USANDO TOAST
     formNovaTarefa.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -165,6 +312,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const resultado = await resposta.json();
 
             if (resposta.ok) {
+                // Toast condicional para Criação ou Atualização de Tarefa
+                if (isEditando) {
+                    mostrarToast('Tarefa atualizada com sucesso!', 'sucesso');
+                } else {
+                    mostrarToast('Tarefa criada com sucesso!', 'sucesso');
+                }
+
                 document.getElementById('tituloTarefa').value = '';
                 document.getElementById('descricaoTarefa').value = '';
                 document.getElementById('prazoTarefa').value = '';
@@ -176,16 +330,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 carregarTarefas();
             } else {
-                alert(resultado.mensagem || 'Erro ao salvar tarefa.');
+                mostrarToast(resultado.mensagem || resultado.erro || 'Erro ao salvar tarefa.', 'erro');
             }
         } catch (erro) {
             console.error('Erro detalhado na requisição:', erro);
-            alert('Não foi possível conectar ao servidor.');
+            mostrarToast('Não foi possível conectar ao servidor.', 'erro');
         }
     });
 
-    // Eventos de clique na tabela (Editar e Excluir)
+    // Eventos de clique na tabela (Editar e Excluir Tarefa)
     listaTarefas.addEventListener('click', async (e) => {
+        // EXCLUIR TAREFA - USANDO TOAST
         if (e.target.classList.contains('btn-excluir')) {
             const idTarefa = e.target.getAttribute('data-id');
 
@@ -199,13 +354,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const resultado = await resposta.json();
 
                     if (resposta.ok) {
+                        mostrarToast('Tarefa excluída com sucesso!', 'sucesso');
                         carregarTarefas();
                     } else {
-                        alert(resultado.mensagem || 'Erro ao excluir tarefa.');
+                        mostrarToast(resultado.mensagem || resultado.erro || 'Erro ao excluir tarefa.', 'erro');
                     }
                 } catch (erro) {
                     console.error('Erro na requisição de exclusão:', erro);
-                    alert('Não foi possível conectar ao servidor.');
+                    mostrarToast('Não foi possível conectar ao servidor.', 'erro');
                 }
             }
         }
@@ -226,6 +382,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const btnSubmit = formNovaTarefa.querySelector('button[type="submit"]');
             if (btnSubmit) btnSubmit.innerText = 'Atualizar Tarefa';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     });
 
@@ -266,82 +423,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const resultado = await resposta.json();
 
                 if (resposta.ok) {
+                    mostrarToast(`Status alterado para ${novoStatus}!`, 'sucesso');
                     carregarTarefas();
                 } else {
-                    alert(resultado.mensagem || 'Erro ao alterar o status.');
+                    mostrarToast(resultado.mensagem || 'Erro ao alterar o status.', 'erro');
                     e.target.checked = !e.target.checked;
                 }
             } catch (erro) {
                 console.error('Erro na requisição:', erro);
-                alert('Não foi possível conectar ao servidor.');
+                mostrarToast('Não foi possível conectar ao servidor.', 'erro');
                 e.target.checked = !e.target.checked;
             }
         }
     });
 
-    function mostrarToast(mensagem, tipo = 'sucesso') {
-        if (!mensagem) return;
-
-        const container = document.getElementById('toastContainer');
-        if (!container) return;
-
-        const toast = document.createElement('div');
-        toast.innerText = mensagem;
-
-        toast.style.padding = '12px 20px';
-        toast.style.borderRadius = '6px';
-        toast.style.color = '#fff';
-        toast.style.fontSize = '14px';
-        toast.style.fontWeight = '500';
-        toast.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
-        toast.style.transition = 'opacity 0.3s ease';
-        toast.style.opacity = '0';
-
-        if (tipo === 'sucesso') {
-            toast.style.backgroundColor = '#28a745';
-        } else if (tipo === 'erro') {
-            toast.style.backgroundColor = '#dc3545';
-        } else {
-            toast.style.backgroundColor = '#ffc107';
-            toast.style.color = '#333';
-        }
-
-        container.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.opacity = '1';
-        }, 10);
-
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => {
-                toast.remove();
-            }, 300);
-        }, 3000);
-    }
-
     carregarCategorias();
     carregarTarefas();
     mostrarToast('Bem-vindo ao painel!', 'sucesso');
 
-    // =========================================================================
-    // [APRENDIZADO] ONDE ESTAVA O ERRO DE DUPLICIDADE (ERRO 400)?
-    // No seu código anterior, você tinha duas lógicas separadas para o cadastro 
-    // de categorias: uma colada no meio do código e outra no final. 
-    // Isso fazia o formulário disparar 2 requisições POST idênticas ao mesmo tempo.
-    // A 1ª passava com sucesso, e a 2ª quebrava dando erro 400 de duplicidade.
-    // 
-    // SOLUÇÃO: Unificamos tudo em uma única função bem estruturada abaixo, 
-    // vinculando o evento de 'submit' apenas uma única vez no final.
-    // =========================================================================
-
+    // Cadastro de Categoria com Toast
     async function adicionarCategoria(evento) {
         evento.preventDefault();
 
         const nomeInput = document.getElementById('nomeNovaCategoria');
         const nomeCategoria = nomeInput.value.trim();
 
-        // Pega o valor do input de cor (caso exista na tela)
         const corInput = document.getElementById('corNovaCategoria');
         const corCategoria = corInput ? corInput.value : '#3498db';
 
@@ -361,22 +467,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             const resultado = await resposta.json();
-            console.log("Retorno do servidor após alteração:", resultado);
 
             if (resposta.ok) {
                 mostrarToast('Categoria adicionada com sucesso!', 'sucesso');
                 nomeInput.value = '';
-                carregarCategorias(); // Atualiza os selects com a nova categoria
+                if (corInput) corInput.value = '';
+                carregarCategorias();
             } else {
                 mostrarToast(resultado.erro || resultado.mensagem || 'Erro ao adicionar a categoria.', 'erro');
             }
         } catch (erro) {
             console.error(erro);
-            mostrarToast('Não foi possível salvar a alteração', 'erro');
+            mostrarToast('Não foi possível salvar a categoria.', 'erro');
         }
     }
 
-    // [APRENDIZADO] Registro único do evento de submit para evitar disparos duplos
     const formNovaCategoria = document.getElementById('formNovaCategoria');
     if (formNovaCategoria) {
         formNovaCategoria.addEventListener('submit', adicionarCategoria);

@@ -1,3 +1,6 @@
+/* ==========================================
+   1. LAYOUT GERAL E BASE
+   ================================---------- */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f6f9;
@@ -28,113 +31,80 @@ h2 {
     color: #333;
 }
 
-.btn-sair {
-    background-color: #d9534f;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.btn-sair:hover {
-    background-color: #c9302c;
-}
-
-.resumo-container {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.total-tarefas {
-    flex: 1;
-    background: #e9ecef;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.total-tarefas h4 {
-    margin: 0;
-    color: #555;
-    font-size: 14px;
-}
-
-.total-tarefas p {
-    margin: 5px 0 0 0;
-    font-size: 22px;
-    font-weight: bold;
-    color: #333;
-}
-
-.total-concluido {
-    flex: 1;
-    background: #d4edda;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.total-concluido h4 {
-    margin: 0;
-    color: #155724;
-    font-size: 14px;
-}
-
-.total-concluido p {
-    margin: 5px 0 0 0;
-    font-size: 22px;
-    font-weight: bold;
-    color: #155724;
-}
-
-.total-pendente {
-    flex: 1;
-    background: #fff3cd;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.total-pendente h4 {
-    margin: 0;
-    color: #856404;
-    font-size: 14px;
-}
-
-.total-pendente p {
-    margin: 5px 0 0 0;
-    font-size: 22px;
-    font-weight: bold;
-    color: #856404;
-}
-
-.tabela-tarefas {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-.tabela-tarefas th,
-.tabela-tarefas td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-}
-
-.tabela-tarefas th {
-    background-color: #f8f9fa;
-    color: #333;
-}
-
 .mensagem {
     margin-bottom: 15px;
     font-size: 14px;
     color: #666;
 }
 
+
+/* ==========================================
+   2. CARDS DE RESUMO
+   ================================---------- */
+.resumo-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.total-tarefas,
+.total-concluido,
+.total-pendente {
+    flex: 1;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.total-tarefas {
+    background: #e9ecef;
+}
+
+.total-tarefas h4 {
+    color: #555;
+}
+
+.total-tarefas p {
+    color: #333;
+}
+
+.total-concluido {
+    background: #d4edda;
+}
+
+.total-concluido h4,
+.total-concluido p {
+    color: #155724;
+}
+
+.total-pendente {
+    background: #fff3cd;
+}
+
+.total-pendente h4,
+.total-pendente p {
+    color: #856404;
+}
+
+.total-tarefas h4,
+.total-concluido h4,
+.total-pendente h4 {
+    margin: 0;
+    font-size: 14px;
+}
+
+.total-tarefas p,
+.total-concluido p,
+.total-pendente p {
+    margin: 5px 0 0 0;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+
+/* ==========================================
+   3. FORMULÁRIOS E FILTROS
+   ================================---------- */
 .form-container {
     background: #f8f9fa;
     padding: 15px;
@@ -158,49 +128,6 @@ h2 {
     box-sizing: border-box;
 }
 
-.btn-adicionar {
-    background-color: #5cb85c;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.btn-adicionar:hover {
-    background-color: #4cae4c;
-}
-
-.btn-excluir {
-    background-color: #d9534f;
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-excluir:hover {
-    background-color: #c9302c;
-}
-
-.btn-editar {
-    background-color: #f0ad4e;
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    margin-right: 5px;
-}
-
-.btn-editar:hover {
-    background-color: #ec971f;
-}
-
 .categoria-section {
     margin-top: 30px;
     margin-bottom: 30px;
@@ -220,6 +147,71 @@ h2 {
     padding: 8px;
 }
 
+.filtros-container {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+
+/* ==========================================
+   4. TABELAS (TAREFAS E CATEGORIAS)
+   ================================---------- */
+.tabela-tarefas,
+.tabela-categoria {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: #ffffff;
+}
+
+.tabela-tarefas th,
+.tabela-tarefas td,
+.tabela-categoria th,
+.tabela-categoria td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.tabela-tarefas th,
+.tabela-categoria th {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+
+/* ==========================================
+   5. BOTÕES
+   ================================---------- */
+.btn-sair {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-sair:hover {
+    background-color: #c9302c;
+}
+
+.btn-adicionar {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-adicionar:hover {
+    background-color: #4cae4c;
+}
+
 .btn-categoria {
     padding: 8px 15px;
     background: #5cb85c;
@@ -233,12 +225,39 @@ h2 {
     background: #4cae4c;
 }
 
-.filtros-container {
-    margin-bottom: 20px;
-    display: flex;
-    gap: 15px
+.btn-editar {
+    background-color: #f0ad4e;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-right: 5px;
 }
 
+.btn-editar:hover {
+    background-color: #ec971f;
+}
+
+.btn-excluir {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.btn-excluir:hover {
+    background-color: #c9302c;
+}
+
+
+/* ==========================================
+   6. COMPONENTES EXTRAS (TOAST)
+   ================================---------- */
 .toast-container {
     position: fixed;
     top: 20px;
