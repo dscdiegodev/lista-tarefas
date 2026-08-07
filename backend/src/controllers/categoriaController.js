@@ -5,6 +5,8 @@ async function criar(req, res) {
         const { nome, cor } = req.body;
         const usuarioId = req.usuarioId;
 
+        console.log("DADOS RECEBIDOS - Nome:", nome, "| UsuarioId:", usuarioId);
+
         const novaCategoria = await categoriaService.criarCategoria({ nome, cor }, usuarioId);
 
         return res.status(201).json({
