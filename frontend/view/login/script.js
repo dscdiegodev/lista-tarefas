@@ -29,6 +29,8 @@ form.addEventListener('submit', async (e) => {
 
             // Salva o token JWT no navegador para usar nas próximas requisições
             localStorage.setItem('token', dados.token);
+
+            window.location.href = 'dashboard/dashboard.html';
         } else {
             mensagemDiv.className = 'erro';
             mensagemDiv.innerText = dados.mensagem || 'Erro ao fazer login.';
