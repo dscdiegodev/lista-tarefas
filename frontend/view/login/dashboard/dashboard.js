@@ -90,17 +90,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (resultado.dados.length === 0) {
                         listaCategoriasEl.innerHTML = '<tr><td colspan="3" style="text-align: center; color: gray;">Nenhuma categoria cadastrada.</td></tr>';
                     } else {
-                        listaCategoriasEl.innerHTML = resultado.dados.map(cat => `
+                        listaTarefas.innerHTML = resultado.dados.map(tarefa => `
                             <tr>
+                                <td>${tarefa.titulo || 'Sem título'}</td>
+                                <td>${tarefa.descricao || 'Sem descrição'}</td>
                                 <td>
-                                    <span style="display: inline-block; width: 12px; height: 12px; background-color: ${cat.cor || '#3498db'}; border-radius: 50%; margin-right: 8px; vertical-align: middle;"></span>
-                                    <strong>${cat.nome}</strong>
+                                    <span style="background-color: ${tarefa.categoria_cor || '#3498db'}; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">
+                                        ${tarefa.categoria_nome || 'Geral'}
+                                    </span>
                                 </td>
-                                <td><code>${cat.cor || 'Padrão'}</code></td>
                                 <td>
-                                    <div style="display: flex; gap: 5px; align-items: center;">
-                                        <button class="btn-editar" data-id="${cat.id}" data-nome="${cat.nome}" data-cor="${cat.cor || ''}" style="padding: 5px 10px; background: #f0ad4e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Editar</button>
-                                        <button class="btn-excluir" data-id="${cat.id}" style="padding: 5px 10px; background: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Excluir</button>
+                                    <strong>${tarefa.prioridade || 'Média'}</strong><br>
+                                    <input type="checkbox" class="check-concluido" data-id="${tarefa.id}" ${tarefa.status === 'Concluída' ? 'checked' : ''}>
+                                    <span style="${tarefa.status === 'Concluída' ? 'text-decoration: line-through; color: gray;' : ''}">
+                                        ${tarefa.status || 'Pendente'}
+                                    </span>
+                                </td>
+                                <td>
+                                    ${tarefa.tags && tarefa.tags.length > 0 ? tarefa.tags.map(tag => `<span style="background:#e2e8f0; color:#475569; padding:2px 6px; border-radius:4px; font-size:11px; margin-right:4px;">#${tag.nome}</span>`).join('') : '-'}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 5px; align-items: center; justify-content: center;">
+                                        <button class="btn-editar" data-id="${tarefa.id}" data-titulo="${tarefa.titulo || ''}" data-descricao="${tarefa.descricao || ''}" data-prazo="${tarefa.prazo ? tarefa.prazo.split('T')[0] : ''}" data-categoria="${tarefa.id_categoria || ''}">Editar</button>
+                                        <button class="btn-excluir" data-id="${tarefa.id}">Excluir</button>
                                     </div>
                                 </td>
                             </tr>
@@ -242,34 +254,38 @@ document.addEventListener('DOMContentLoaded', async () => {
                 listaDeTarefas.forEach(tarefa => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${tarefa.titulo || tarefa.nome || 'Sem título'}</td>
-                        <td>${tarefa.descricao || 'Sem descrição'}</td>
-                        <td>
-                            <span style="background-color: ${tarefa.categoria_cor || '#3498db'}; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">
-                                ${tarefa.categoria_nome || 'Geral'}
-                            </span>
-                        </td>
-                        <td>
-                            <input type="checkbox" class="check-concluido" data-id="${tarefa.id}" ${tarefa.status === 'Concluída' ? 'checked' : ''}>
-                            <span style="${tarefa.status === 'Concluída' ? 'text-decoration: line-through; color: gray;' : ''}">
-                                ${tarefa.status || 'Pendente'}
-                            </span>
-                        </td>
-                        <td>
-                            <div style="display: flex; gap: 5px; align-items: center;">
-                                <button class="btn-editar"
-                                    data-id="${tarefa.id}"
-                                    data-titulo="${tarefa.titulo || ''}"
-                                    data-descricao="${tarefa.descricao || ''}"
-                                    data-prazo="${tarefa.prazo ? tarefa.prazo.split('T')[0] : ''}"
-                                    data-categoria="${tarefa.id_categoria || ''}"
-                                    style="padding: 5px 10px; background: #f0ad4e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Editar</button>
-                                <button class="btn-excluir"
-                                    data-id="${tarefa.id}"
-                                    style="padding: 5px 10px; background: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Excluir</button>
-                            </div>
-                        </td>
-                    `;
+                            <td>${tarefa.titulo || tarefa.nome || 'Sem título'}</td>
+                            <td>${tarefa.descricao || 'Sem descrição'}</td>
+                            <td>
+                                <span style="background-color: ${tarefa.categoria_cor || '#3498db'}; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">
+                                    ${tarefa.categoria_nome || 'Geral'}
+                                </span>
+                            </td>
+                            <td>
+                                <strong>${tarefa.prioridade || 'Média'}</strong><br>
+                                <input type="checkbox" class="check-concluido" data-id="${tarefa.id}" ${tarefa.status === 'Concluída' ? 'checked' : ''}>
+                                <span style="${tarefa.status === 'Concluída' ? 'text-decoration: line-through; color: gray;' : ''}">
+                                    ${tarefa.status || 'Pendente'}
+                                </span>
+                            </td>
+                            <td>
+                                ${tarefa.tags && tarefa.tags.length > 0 ? tarefa.tags.map(tag => `<span style="background:#e2e8f0; color:#475569; padding:2px 6px; border-radius:4px; font-size:11px; margin-right:4px;">#${tag.nome}</span>`).join('') : '-'}
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 5px; align-items: center;">
+                                    <button class="btn-editar"
+                                        data-id="${tarefa.id}"
+                                        data-titulo="${tarefa.titulo || ''}"
+                                        data-descricao="${tarefa.descricao || ''}"
+                                        data-prazo="${tarefa.prazo ? tarefa.prazo.split('T')[0] : ''}"
+                                        data-categoria="${tarefa.id_categoria || ''}"
+                                        style="padding: 5px 10px; background: #f0ad4e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Editar</button>
+                                    <button class="btn-excluir"
+                                        data-id="${tarefa.id}"
+                                        style="padding: 5px 10px; background: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Excluir</button>
+                                </div>
+                            </td>
+                        `;
                     listaTarefas.appendChild(tr);
                 });
 

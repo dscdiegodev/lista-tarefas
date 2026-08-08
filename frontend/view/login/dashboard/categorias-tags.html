@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Categorias e Tags</title>
+    <link rel="stylesheet" href="categorias-tags.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h2>Gerenciamento de Categorias e Tags</h2>
+            <button onclick="window.location.href='dashboard.html'" class="btn-sair"
+                style="background-color: #6c757d;">Voltar ao Dashboard</button>
+        </header>
+
+        <div class="content">
+            <div id="mensagem" class="mensagem"></div>
+
+            <!-- Seção de Categorias -->
+            <div class="categoria-section">
+                <h3>Nova Categoria</h3>
+                <form id="formNovaCategoria">
+                    <input type="text" id="nomeNovaCategoria" placeholder="Nome da categoria" required>
+                    <input type="text" id="corNovaCategoria" placeholder="Cor (ex: #3498db)" required>
+                    <button class="btn-categoria" type="submit">Adicionar Categoria</button>
+                </form>
+                <table class="tabela-categoria">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Cor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaCategorias"></tbody>
+                </table>
+            </div>
+
+            <!-- Seção de Tags -->
+            <div class="categoria-section" style="margin-top: 40px;">
+                <h3>Nova Tag</h3>
+                <form id="formNovaTag">
+                    <input type="text" id="nomeNovaTag" placeholder="Nome da tag (ex: Importante)" required>
+                    <button class="btn-categoria" type="submit" style="background-color: #007bff;">Adicionar
+                        Tag</button>
+                </form>
+                <table class="tabela-categoria">
+                    <thead>
+                        <tr>
+                            <th>Nome Tag</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaTags"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="categorias-tags.js"></script>
+</body>
+
+</html>

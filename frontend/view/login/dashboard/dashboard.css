@@ -155,10 +155,9 @@ h2 {
 
 
 /* ==========================================
-   4. TABELAS (TAREFAS E CATEGORIAS)
-   ================================---------- */
-.tabela-tarefas,
-.tabela-categoria {
+   TABELA LIMPA E ALINHADA
+   ========================================== */
+.tabela-tarefas {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
@@ -166,18 +165,23 @@ h2 {
 }
 
 .tabela-tarefas th,
-.tabela-tarefas td,
-.tabela-categoria th,
-.tabela-categoria td {
+.tabela-tarefas td {
     border: 1px solid #ddd;
-    padding: 12px;
+    padding: 10px;
     text-align: left;
+    vertical-align: middle;
 }
 
-.tabela-tarefas th,
-.tabela-categoria th {
+.tabela-tarefas th {
     background-color: #f8f9fa;
     color: #333;
+    font-weight: bold;
+}
+
+/* Garante que a coluna de ações e status fiquem bem compactas */
+.tabela-tarefas td:nth-last-child(1),
+.tabela-tarefas td:nth-last-child(2) {
+    white-space: nowrap;
 }
 
 

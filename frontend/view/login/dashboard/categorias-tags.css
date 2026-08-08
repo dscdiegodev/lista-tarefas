@@ -1,0 +1,186 @@
+/* ==========================================
+   1. LAYOUT GERAL E BASE
+   ========================================== */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    margin: 0;
+    color: #333;
+    font-size: 22px;
+}
+
+.mensagem {
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #666;
+}
+
+
+/* ==========================================
+   2. SEÇÕES E FORMULÁRIOS
+   ========================================== */
+.categoria-section {
+    margin-top: 30px;
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.categoria-section h3 {
+    margin-top: 0;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+#formNovaCategoria,
+#formNovaTag {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.categoria-section input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+
+/* ==========================================
+   3. TABELAS DE CATEGORIAS E TAGS
+   ========================================== */
+.tabela-categoria {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background-color: #ffffff;
+}
+
+.tabela-categoria th,
+.tabela-categoria td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.tabela-categoria th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Deixa a coluna de ações mais compacta e alinhada */
+.tabela-categoria td:last-child {
+    white-space: nowrap;
+    width: 120px;
+    text-align: center;
+}
+
+.tabela-categoria th:last-child {
+    text-align: center;
+}
+
+
+/* ==========================================
+   4. BOTÕES
+   ========================================== */
+.btn-sair {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-sair:hover {
+    background-color: #5a6268;
+}
+
+.btn-categoria {
+    padding: 10px 15px;
+    background: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.btn-categoria:hover {
+    background: #4cae4c;
+}
+
+.btn-editar {
+    background-color: #f0ad4e;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-right: 5px;
+}
+
+.btn-editar:hover {
+    background-color: #ec971f;
+}
+
+.btn-excluir {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.btn-excluir:hover {
+    background-color: #c9302c;
+}
+
+
+/* ==========================================
+   5. COMPONENTES EXTRAS (TOAST)
+   ========================================== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}

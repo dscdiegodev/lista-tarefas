@@ -13,7 +13,12 @@
     <div class="container">
         <header>
             <h2>Minhas Tarefas</h2>
-            <button id="btnLogout" class="btn-sair">Sair</button>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button onclick="window.location.href='categorias-tags.html'" class="btn-categoria"
+                    style="background-color: #17a2b8; padding: 8px 12px; border: none; border-radius: 4px; color: white; cursor: pointer;">Gerenciar
+                    Categorias/Tags</button>
+                <button id="btnLogout" class="btn-sair">Sair</button>
+            </div>
         </header>
 
         <div class="content">
@@ -45,6 +50,13 @@
                     <input type="text" id="descricaoTarefa" placeholder="Descrição da tarefa">
                     <input type="date" id="prazoTarefa" required>
 
+                    <select id="prioridadeTarefa">
+                        <option value="Baixa">Baixa</option>
+                        <option value="Média" selected>Média</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Urgente">Urgente</option>
+                    </select>
+
                     <select id="categoriaTarefa">
                         <option value="">Selecione uma categoria (Opcional)</option>
                     </select>
@@ -53,7 +65,7 @@
                 </form>
             </div>
 
-            <!-- Seção Principal: Filtros e Tabela de Tarefas (Em destaque no topo) -->
+            <!-- Seção Principal: Filtros e Tabela de Tarefas -->
             <div style="margin-top: 30px; margin-bottom: 30px;">
                 <h3 style="margin-bottom: 15px; color: #333;">Suas Tarefas</h3>
 
@@ -90,39 +102,15 @@
                 <table class="tabela-tarefas">
                     <thead>
                         <tr>
-                            <th>Título</th>
-                            <th>Descrição</th>
-                            <th>Categoria</th>
-                            <th>Status</th>
-                            <th>Ações</th>
+                            <th style="width: 15%;">Título</th>
+                            <th style="width: 25%;">Descrição</th>
+                            <th style="width: 15%;">Categoria</th>
+                            <th style="width: 15%;">Prioridade / Status</th>
+                            <th style="width: 15%;">Tags</th>
+                            <th style="width: 15%;">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="listaTarefas">
-                        <!-- Preenchido via JS -->
-                    </tbody>
-                </table>
-            </div>
-
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
-
-            <!-- Seção Secundária: Gerenciar Categorias (Mais abaixo) -->
-            <div class="categoria-section">
-                <h3>Gerenciar Categorias</h3>
-                <form id="formNovaCategoria">
-                    <input type="text" id="nomeNovaCategoria" placeholder="Nome da nova categoria" required>
-                    <input type="text" id="corNovaCategoria" placeholder="Cor da categoria" required>
-                    <button class="btn-categoria" type="submit">Adicionar Categoria</button>
-                </form>
-
-                <table class="tabela-categoria">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Cor</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listaCategorias">
                         <!-- Preenchido via JS -->
                     </tbody>
                 </table>
