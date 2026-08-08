@@ -1,4 +1,4 @@
-const pool = require('../config/database');
+const tagRepository = require('../repositories/tagRepository');
 
 async function criarTag(nome, usuarioId) {
     if (!nome) {
@@ -6,33 +6,26 @@ async function criarTag(nome, usuarioId) {
     }
 
     try {
-        const [resultado] = await pool.execute(
-            `INSERT INTO tags (nome, id_usuario) VALUES (?, ?)`,
-            [nome, usuarioId]
-        );
+        const insertId = await tagRepository.criar(nome, usuarioId);
 
         return {
-            id: resultado.insertId,
+            id: insertId,
             nome,
             id_usuario: usuarioId
         };
     } catch (error) {
         console.error('ERRO REAL DO MYSQL:', error);
-        
+
         if (error.code === 'ER_DUP_ENTRY') {
             throw new Error('Você já possui uma tag com este nome.');
         }
-        
+
         throw new Error('Erro ao criar a tag no banco de dados');
     }
 }
 
 async function listarTagsPorUsuario(usuarioId) {
-    const [tags] = await pool.execute(
-        `SELECT id, nome FROM tags WHERE id_usuario = ? ORDER BY nome ASC`,
-        [usuarioId]
-    );
-    return tags;
+    return await tagRepository.listarPorUsuario(usuarioId);
 }
 
 async function atualizarTag(tagId, dados, usuarioId) {
@@ -43,15 +36,12 @@ async function atualizarTag(tagId, dados, usuarioId) {
     }
 
     try {
-        const [resultado] = await pool.execute(
-            `UPDATE tags SET nome = ? WHERE id = ? AND id_usuario = ?`,
-            [nome, tagId, usuarioId]
-        );
+        const affectedRows = await tagRepository.atualizar(tagId, nome, usuarioId);
 
-        if (resultado.affectedRows === 0) {
+        if (affectedRows === 0) {
             throw new Error('Tag não encontrada ou você não tem permissão para atualizá-la!');
         }
-        
+
         return {
             mensagem: 'Tag atualizada com sucesso.',
             dados: {
@@ -70,12 +60,9 @@ async function atualizarTag(tagId, dados, usuarioId) {
 }
 
 async function deletarTag(tagId, usuarioId) {
-    const [resultado] = await pool.execute(
-        `DELETE FROM tags WHERE id = ? AND id_usuario = ?`,
-        [tagId, usuarioId]
-    );
+    const affectedRows = await tagRepository.deletar(tagId, usuarioId);
 
-    if (resultado.affectedRows === 0) {
+    if (affectedRows === 0) {
         throw new Error('Tag não encontrada ou você não tem permissão para excluí-la.');
     }
 

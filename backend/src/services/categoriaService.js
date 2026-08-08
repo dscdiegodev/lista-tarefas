@@ -1,4 +1,4 @@
-const pool = require('../config/database');
+const categoriaRepository = require('../repositories/categoriaRepository');
 
 async function criarCategoria(dados, usuarioId) {
     const { nome, cor } = dados;
@@ -6,16 +6,15 @@ async function criarCategoria(dados, usuarioId) {
         throw new Error('O nome da categoria é obrigatório.');
     }
 
+    const corFinal = cor || '#3498db';
+
     try {
-        const [resultado] = await pool.execute(
-            `INSERT INTO categorias (nome, cor, id_usuario) VALUES (?, ?, ?)`,
-            [nome, cor || '#3498db', usuarioId]
-        );
+        const insertId = await categoriaRepository.criar(nome, corFinal, usuarioId);
 
         return {
-            id: resultado.insertId,
+            id: insertId,
             nome,
-            cor: cor || '#3498db',
+            cor: corFinal,
             id_usuario: usuarioId
         };
     } catch (error) {
@@ -28,28 +27,21 @@ async function criarCategoria(dados, usuarioId) {
 }
 
 async function listarCategoriasPorUsuario(usuarioId) {
-    const [categorias] = await pool.execute(
-        `SELECT id, nome, cor FROM categorias WHERE id_usuario = ? ORDER BY nome ASC`,
-        [usuarioId]
-    );
-
-    return categorias;
+    return await categoriaRepository.listarPorUsuario(usuarioId);
 }
 
-async function atualizarCategoria(categoriaId, dados, usuarioId){
+async function atualizarCategoria(categoriaId, dados, usuarioId) {
     const { nome, cor } = dados;
 
-    if(!nome) {
+    if (!nome) {
         throw new Error('O nome da categoria é obrigatório para atualização.');
     }
 
-    const [resultado] = await pool.execute(
-        `UPDATE categorias SET nome = ?, cor = ? WHERE id = ? AND id_usuario = ?`,
-        [nome, cor || '#3498db', categoriaId, usuarioId]
-    );
+    const corFinal = cor || '#3498db';
+    const affectedRows = await categoriaRepository.atualizar(categoriaId, nome, corFinal, usuarioId);
 
-    if (resultado.affectedRows === 0) {
-        throw new Error('Categoria não encontrada ou você não permissão para atualizá-la!');
+    if (affectedRows === 0) {
+        throw new Error('Categoria não encontrada ou você não tem permissão para atualizá-lá!');
     }
 
     return {
@@ -57,19 +49,16 @@ async function atualizarCategoria(categoriaId, dados, usuarioId){
         dados: {
             id: Number(categoriaId),
             nome,
-            cor: cor || '#3498db',
+            cor: corFinal,
             id_usuario: usuarioId
         }
     };
 }
 
 async function deletarCategoria(categoriaId, usuarioId) {
-    const [resultado] = await pool.execute(
-        `DELETE FROM categorias WHERE id = ? AND id_usuario = ?`,
-        [categoriaId, usuarioId]
-    );
+    const affectedRows = await categoriaRepository.deletar(categoriaId, usuarioId);
 
-    if (resultado.affectedRows === 0) {
+    if (affectedRows === 0) {
         throw new Error('Categoria não encontrada ou você não tem permissão para excluí-la.');
     }
 

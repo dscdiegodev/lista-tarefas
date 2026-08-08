@@ -1,43 +1,33 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const pool = require('../config/database');
+const userRepository = require('../repositories/userRepository');
 
 async function registrarUsuario(nome, email, senha) {
     const saltRounds = 10;
     const senhaHash = await bcrypt.hash(senha, saltRounds);
 
     try {
-        const [resultado] = await pool.execute(
-            'INSERT INTO usuarios (nome, email, senha_hash) VALUES (?, ?, ?)',
-            [nome, email, senhaHash]
-        );
-        const novoUsuarioId = resultado.insertId;
+        const novoUsuarioId = await userRepository.criarUsuario(nome, email, senhaHash);
         return {
             id: novoUsuarioId,
             nome,
             email
         };
-
     } catch (error) {
         console.error("ERRO REAL DO MYSQL:", error);
         if (error.code === 'ER_DUP_ENTRY') {
-            throw Error('Este e-mail já está cadastrado no sistema.');
+            throw new Error('Este e-mail já está cadastrado no sistema.');
         }
+        throw new Error('Erro ao registrar usuário no banco de dados.');
     }
-    throw new Error('Erro ao registrar usuário no banco de dados.');
 }
 
 async function autenticarUsuario(email, senha) {
-    const [linhas] = await pool.execute(
-        'SELECT * FROM usuarios WHERE email = ?',
-        [email]
-    );
+    const usuario = await userRepository.buscarPorEmail(email);
 
-    if (linhas.length === 0) {
+    if (!usuario) {
         throw new Error('E-mail ou senha inválidos.');
     }
-
-    const usuario = linhas[0];
 
     const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
     if (!senhaValida) {
@@ -49,7 +39,7 @@ async function autenticarUsuario(email, senha) {
         email: usuario.email
     };
 
-    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: '1d'});
+    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: '1d' });
 
     return {
         usuario: {

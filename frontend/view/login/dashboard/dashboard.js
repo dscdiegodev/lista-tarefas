@@ -308,6 +308,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const descricao = document.getElementById('descricaoTarefa').value;
         const prazo = document.getElementById('prazoTarefa').value;
         const id_categoria = selectCategoria.value || null;
+        const prioridade = document.getElementById('prioridadeTarefa').value || 'Média';
+        
 
         const isEditando = idTarefaEditando !== null;
         const url = isEditando
@@ -322,7 +324,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ titulo, descricao, prazo, id_categoria })
+                body: JSON.stringify({ titulo, descricao, prazo, id_categoria, prioridade })
             });
 
             const resultado = await resposta.json();
@@ -353,6 +355,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             mostrarToast('Não foi possível conectar ao servidor.', 'erro');
         }
     });
+
+    async function carregarTags() {
+        try {
+            const resposta = await fetch('http://localhost:3000/api/tags', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const resultado = await resposta.json();
+            const container = document.getElementById('containerTags');
+
+            if (resposta.ok && container) {
+                container.innerHTML = resultado.dados.map(tag => `
+                <label style="margin-right: 10px;">
+                    <input type="checkbox" name="tags" value="${tag.id}"> ${tag.nome}
+                </label>
+            `).join('');
+            }
+        } catch (erro) {
+            console.error('Erro ao carregar tags:', erro);
+        }
+    }
 
     // Eventos de clique na tabela (Editar e Excluir Tarefa)
     listaTarefas.addEventListener('click', async (e) => {
@@ -455,6 +477,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     carregarCategorias();
     carregarTarefas();
+    carregarTags();
     mostrarToast('Bem-vindo ao painel!', 'sucesso');
 
     // Cadastro de Categoria com Toast
