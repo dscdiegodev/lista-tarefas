@@ -24,22 +24,24 @@ async function criarTarefa(dadosTarefa, usuarioId) {
     }
 }
 
-async function listarTarefasPorUsuario(usuarioId, filtros = {}) {
+// Nome ajustado para "listarTarefas" para casar perfeitamente com o controller
+async function listarTarefas(usuarioId, status, idCategoria, ordenacao) {
     try {
-        const tarefas = await tarefaRepository.listarPorUsuario(usuarioId, filtros);
+        const tarefas = await tarefaRepository.listarPorUsuario(usuarioId, status, idCategoria, ordenacao);
 
         const tarefasComTags = await Promise.all(
             tarefas.map(async (tarefa) => {
                 const tags = await tarefaRepository.buscarTagsDaTarefa(tarefa.id);
                 return {
                     ...tarefa,
-                    tags
+                    tags: tags || []
                 };
             })
         );
 
         return tarefasComTags;
     } catch (error) {
+        console.error('Erro detalhado no service:', error);
         throw new Error('Erro ao listar as tarefas.');
     }
 }
@@ -104,7 +106,8 @@ async function removerTagDaTarefa(tarefaId, tagId, usuarioId) {
 
 module.exports = {
     criarTarefa,
-    listarTarefasPorUsuario,
+    listarTarefas,
+    listarTarefasPorUsuario: listarTarefas, // Mantém compatibilidade caso outro arquivo chame assim
     atualizarTarefa,
     deletarTarefa,
     adicionarTagNaTarefa,

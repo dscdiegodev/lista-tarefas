@@ -5,6 +5,8 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 router.use(authMiddleware);
 
+router.get('/', authMiddleware, tarefaController.listar);
+
 /**
  * @swagger
  * /api/tarefas:

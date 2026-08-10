@@ -16,10 +16,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     btnLogout.addEventListener('click', () => {
         localStorage.removeItem('token');
-        window.location.href = '../login/login.html';
+        window.location.href = '../login.html';
     });
 
-    // Função genérica de Toast (movida para o topo para ser acessível em todo o escopo)
     function mostrarToast(mensagem, tipo = 'sucesso') {
         if (!mensagem) return;
 
@@ -90,30 +89,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (resultado.dados.length === 0) {
                         listaCategoriasEl.innerHTML = '<tr><td colspan="3" style="text-align: center; color: gray;">Nenhuma categoria cadastrada.</td></tr>';
                     } else {
-                        listaTarefas.innerHTML = resultado.dados.map(tarefa => `
+                        listaCategoriasEl.innerHTML = resultado.dados.map(cat => `
                             <tr>
-                                <td>${tarefa.titulo || 'Sem título'}</td>
-                                <td>${tarefa.descricao || 'Sem descrição'}</td>
                                 <td>
-                                    <span style="background-color: ${tarefa.categoria_cor || '#3498db'}; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">
-                                        ${tarefa.categoria_nome || 'Geral'}
-                                    </span>
+                                    <span style="display:inline-block; width:12px; height:12px; background-color: ${cat.cor || '#3498db'}; border-radius:50%; margin-right:8px;"></span>
+                                    ${cat.nome}
                                 </td>
-                                <td>
-                                    <strong>${tarefa.prioridade || 'Média'}</strong><br>
-                                    <input type="checkbox" class="check-concluido" data-id="${tarefa.id}" ${tarefa.status === 'Concluída' ? 'checked' : ''}>
-                                    <span style="${tarefa.status === 'Concluída' ? 'text-decoration: line-through; color: gray;' : ''}">
-                                        ${tarefa.status || 'Pendente'}
-                                    </span>
-                                </td>
-                                <td>
-                                    ${tarefa.tags && tarefa.tags.length > 0 ? tarefa.tags.map(tag => `<span style="background:#e2e8f0; color:#475569; padding:2px 6px; border-radius:4px; font-size:11px; margin-right:4px;">#${tag.nome}</span>`).join('') : '-'}
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 5px; align-items: center; justify-content: center;">
-                                        <button class="btn-editar" data-id="${tarefa.id}" data-titulo="${tarefa.titulo || ''}" data-descricao="${tarefa.descricao || ''}" data-prazo="${tarefa.prazo ? tarefa.prazo.split('T')[0] : ''}" data-categoria="${tarefa.id_categoria || ''}">Editar</button>
-                                        <button class="btn-excluir" data-id="${tarefa.id}">Excluir</button>
-                                    </div>
+                                <td style="text-align: right;">
+                                    <button class="btn-editar-categoria" data-id="${cat.id}" data-nome="${cat.nome}" data-cor="${cat.cor || ''}" style="padding: 4px 8px; background: #f0ad4e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 5px;">Editar</button>
+                                    <button class="btn-excluir-categoria" data-id="${cat.id}" style="padding: 4px 8px; background: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Excluir</button>
                                 </td>
                             </tr>
                         `).join('');
@@ -202,6 +186,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             mensagemDiv.innerText = 'Carregando tarefas...';
 
+            const tokenAtual = localStorage.getItem('token');
+
             const statusFiltro = document.getElementById('filtroStatus')?.value || '';
             const categoriaFiltro = document.getElementById('filtroCategoria')?.value || '';
             const ordenacao = document.getElementById('ordenarPor')?.value || '';
@@ -214,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const resposta = await fetch(url + params.toString(), {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${tokenAtual}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -309,7 +295,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const prazo = document.getElementById('prazoTarefa').value;
         const id_categoria = selectCategoria.value || null;
         const prioridade = document.getElementById('prioridadeTarefa').value || 'Média';
-        
+
 
         const isEditando = idTarefaEditando !== null;
         const url = isEditando

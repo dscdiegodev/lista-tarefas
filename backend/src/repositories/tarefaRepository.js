@@ -10,35 +10,35 @@ async function inserir(dados, usuarioId) {
     return resultado.insertId;
 }
 
-async function listarPorUsuario(usuarioId, filtros = {}) {
+async function listarPorUsuario(usuarioId, status, idCategoria, ordenacao) {
     let query = `
-        SELECT DISTINCT t.*, c.nome as categoria_nome, c.cor as categoria_cor
+        SELECT 
+            t.*, 
+            c.nome AS categoria_nome, 
+            c.cor AS categoria_cor 
         FROM tarefas t
         LEFT JOIN categorias c ON t.id_categoria = c.id
-        LEFT JOIN tarefa_tags tt ON t.id = tt.id_tarefa
-        WHERE t.id_usuario = ?`;
+        WHERE t.id_usuario = ?
+    `;
+    const valores = [usuarioId];
 
-    const params = [usuarioId];
-
-    if (filtros.status) {
+    if (status) {
         query += ` AND t.status = ?`;
-        params.push(filtros.status);
-    }
-    if (filtros.id_categoria) {
-        query += ` AND t.id_categoria = ?`;
-        params.push(filtros.id_categoria);
-    }
-    if (filtros.prioridade) {
-        query += ` AND t.prioridade = ?`;
-        params.push(filtros.prioridade);
-    }
-    if (filtros.tagId) {
-        query += ` AND tt.id_tag = ?`;
-        params.push(filtros.tagId);
+        valores.push(status);
     }
 
-    query += ` ORDER BY t.prazo ASC`;
-    const [tarefas] = await pool.execute(query, params);
+    if (idCategoria) {
+        query += ` AND t.id_categoria = ?`;
+        valores.push(idCategoria);
+    }
+
+    if (ordenacao === 'asc' || ordenacao === 'desc') {
+        query += ` ORDER BY t.prazo ${ordenacao.toUpperCase()}`;
+    } else {
+        query += ` ORDER BY t.id DESC`;
+    }
+
+    const [tarefas] = await pool.execute(query, valores);
     return tarefas;
 }
 
