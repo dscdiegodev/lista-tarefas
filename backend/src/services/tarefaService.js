@@ -1,7 +1,7 @@
 const tarefaRepository = require('../repositories/tarefaRepository');
 
 async function criarTarefa(dadosTarefa, usuarioId) {
-    const { titulo, prazo, prioridade, descricao, id_categoria } = dadosTarefa;
+    const { titulo, prazo, prioridade, descricao, id_categoria, tags } = dadosTarefa;
 
     if (!titulo || !prazo) {
         throw new Error('O título e o prazo da tarefa são obrigatórios.');
@@ -9,6 +9,12 @@ async function criarTarefa(dadosTarefa, usuarioId) {
 
     try {
         const insertId = await tarefaRepository.inserir(dadosTarefa, usuarioId);
+
+        if (tags && Array.isArray(tags) && tags.length > 0) {
+            for (const tagId of tags) {
+                await tarefaRepository.associarTag(insertId, tagId);
+            }
+        }
 
         return {
             id: insertId,
@@ -24,7 +30,6 @@ async function criarTarefa(dadosTarefa, usuarioId) {
     }
 }
 
-// Nome ajustado para "listarTarefas" para casar perfeitamente com o controller
 async function listarTarefas(usuarioId, status, idCategoria, ordenacao) {
     try {
         const tarefas = await tarefaRepository.listarPorUsuario(usuarioId, status, idCategoria, ordenacao);
@@ -47,13 +52,23 @@ async function listarTarefas(usuarioId, status, idCategoria, ordenacao) {
 }
 
 async function atualizarTarefa(tarefaId, dadosAtualizados, usuarioId) {
+    const { tags, ...dadosTarefa } = dadosAtualizados;
+
     const tarefaExistente = await tarefaRepository.buscarPorId(tarefaId, usuarioId);
 
     if (!tarefaExistente) {
         throw new Error('Tarefa não encontrada ou você não tem permissão para editá-la.');
     }
 
-    await tarefaRepository.atualizar(tarefaId, dadosAtualizados, usuarioId);
+    await tarefaRepository.atualizar(tarefaId, dadosTarefa, usuarioId);
+
+    if (tags !== undefined && Array.isArray(tags)) {
+        await tarefaRepository.removerTodasTagsDaTarefa(tarefaId);
+
+        for (const tagId of tags) {
+            await tarefaRepository.associarTag(tarefaId, tagId);
+        }
+    }
 
     return { mensagem: 'Tarefa atualizada com sucesso!' };
 }
