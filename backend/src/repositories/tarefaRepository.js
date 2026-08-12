@@ -87,6 +87,10 @@ async function associarTag(tarefaId, tagId) {
     await pool.execute(`INSERT INTO tarefa_tags (id_tarefa, id_tag) VALUES (?, ?)`, [tarefaId, tagId]);
 }
 
+async function removerTodasTagsDaTarefa(tarefaId) {
+    await pool.execute(`DELETE FROM tarefa_tags WHERE id_tarefa = ?`, [tarefaId]);
+}
+
 async function removerTag(tarefaId, tagId) {
     const [resultado] = await pool.execute(`DELETE FROM tarefa_tags WHERE id_tarefa = ? AND id_tag = ?`, [tarefaId, tagId]);
     return resultado.affectedRows;
@@ -100,5 +104,6 @@ module.exports = {
     deletar,
     buscarTagsDaTarefa,
     associarTag,
-    removerTag
+    removerTag,
+    removerTodasTagsDaTarefa
 };
