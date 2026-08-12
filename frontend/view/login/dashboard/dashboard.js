@@ -109,13 +109,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Ouvinte de cliques para Editar e Excluir Categorias na lista visual
+    async function carregarTagsParaSelect() {
+        const resposta = await fetch('http://localhost:3000/api/tags', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const resultado = await resposta.json();
+        const selectTags = document.getElementById('selectTags');
+
+        if (resultado.dados) {
+            selectTags.innerHTML = resultado.dados.map(tag =>
+                `<option value="${tag.id}">#${tag.nome}</option>`
+            ).join('');
+        }
+    }
+
     const listaCategoriasContainer = document.getElementById('listaCategorias');
     if (listaCategoriasContainer) {
         listaCategoriasContainer.addEventListener('click', async (e) => {
             const id = e.target.getAttribute('data-id');
 
-            // EXCLUIR CATEGORIA
             if (e.target.classList.contains('btn-excluir-categoria')) {
                 if (confirm('Tem certeza que deseja excluir esta categoria? As tarefas vinculadas a ela ficarão sem categoria.')) {
                     try {
@@ -139,7 +151,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
 
-            // EDITAR CATEGORIA
             if (e.target.classList.contains('btn-editar-categoria')) {
                 const nomeAtual = e.target.getAttribute('data-nome');
                 const corAtual = e.target.getAttribute('data-cor');
@@ -181,7 +192,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Função para buscar e renderizar as tarefas
     async function carregarTarefas() {
         try {
             mensagemDiv.innerText = 'Carregando tarefas...';
@@ -244,8 +254,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <td>${tarefa.descricao || 'Sem descrição'}</td>
                             <td>
                                 <span style="background-color: ${tarefa.categoria_cor || '#3498db'}; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">
-                                    ${tarefa.categoria_nome || 'Geral'}
-                                </span>
+                                ${tarefa.categoria_nome || 'Geral'}
+                            </span>
                             </td>
                             <td>
                                 <strong>${tarefa.prioridade || 'Média'}</strong><br>
@@ -286,7 +296,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Evento de envio do formulário (Criar / Atualizar Tarefa) - USANDO TOAST
     formNovaTarefa.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -295,6 +304,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const prazo = document.getElementById('prazoTarefa').value;
         const id_categoria = selectCategoria.value || null;
         const prioridade = document.getElementById('prioridadeTarefa').value || 'Média';
+        const selectTags = document.getElementById('selectTags');
+        const tags = Array.from(selectTags.selectedOptions).map(option => Number(option.value));
 
 
         const isEditando = idTarefaEditando !== null;
@@ -310,13 +321,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ titulo, descricao, prazo, id_categoria, prioridade })
+                body: JSON.stringify({ titulo, descricao, prazo, id_categoria, prioridade, tags })
             });
 
             const resultado = await resposta.json();
 
             if (resposta.ok) {
-                // Toast condicional para Criação ou Atualização de Tarefa
                 if (isEditando) {
                     mostrarToast('Tarefa atualizada com sucesso!', 'sucesso');
                 } else {
@@ -328,6 +338,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('prazoTarefa').value = '';
                 selectCategoria.value = '';
                 idTarefaEditando = null;
+                document.getElementById('selectTags').selectedIndex = -1;
 
                 const btnSubmit = formNovaTarefa.querySelector('button[type="submit"]');
                 if (btnSubmit) btnSubmit.innerText = 'Adicionar Tarefa';
@@ -362,9 +373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Eventos de clique na tabela (Editar e Excluir Tarefa)
     listaTarefas.addEventListener('click', async (e) => {
-        // EXCLUIR TAREFA - USANDO TOAST
         if (e.target.classList.contains('btn-excluir')) {
             const idTarefa = e.target.getAttribute('data-id');
 
@@ -462,11 +471,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     carregarCategorias();
+    carregarTagsParaSelect();
     carregarTarefas();
     carregarTags();
     mostrarToast('Bem-vindo ao painel!', 'sucesso');
 
-    // Cadastro de Categoria com Toast
     async function adicionarCategoria(evento) {
         evento.preventDefault();
 
