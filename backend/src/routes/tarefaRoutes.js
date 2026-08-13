@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const tarefaController = require('../controllers/tarefaController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const { validarTarefa } = require('../middlewares/tarefaValidation');
 
 router.use(authMiddleware);
 
@@ -78,7 +79,7 @@ router.get('/', tarefaController.listar);
  *       401:
  *         description: Nao autorizado
  */
-router.post('/', tarefaController.criar);
+router.post('/', validarTarefa, tarefaController.criar);
 
 /**
  * @swagger
@@ -127,7 +128,7 @@ router.post('/', tarefaController.criar);
  *       404:
  *         description: Tarefa nao encontrada
  */
-router.put('/:id', tarefaController.atualizar);
+router.put('/:id', validarTarefa, tarefaController.atualizar);
 
 /**
  * @swagger
