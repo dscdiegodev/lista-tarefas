@@ -30,9 +30,18 @@ async function criarTarefa(dadosTarefa, usuarioId) {
     }
 }
 
-async function listarTarefas(usuarioId, status, idCategoria, ordenacao) {
+async function listarTarefas(usuarioId, status, idCategoria, ordenacao, pagina, limite) {
     try {
-        const tarefas = await tarefaRepository.listarPorUsuario(usuarioId, status, idCategoria, ordenacao);
+        const offset = (pagina - 1) * limite;
+
+        const tarefas = await tarefaRepository.listarPorUsuarioPaginado(
+            usuarioId,
+            status,
+            idCategoria,
+            ordenacao,
+            limite,
+            offset
+        );
 
         const tarefasComTags = await Promise.all(
             tarefas.map(async (tarefa) => {
