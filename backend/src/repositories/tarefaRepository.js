@@ -10,12 +10,12 @@ async function inserir(dados, usuarioId) {
     return resultado.insertId;
 }
 
-async function listarPorUsuario(usuarioId, status, idCategoria, ordenacao) {
+async function listarPorUsuarioPaginado(usuarioId, status, idCategoria, ordenacao, limite, offset) {
     let query = `
-        SELECT 
-            t.*, 
-            c.nome AS categoria_nome, 
-            c.cor AS categoria_cor 
+        SELECT
+            t.*,
+            c.nome AS categoria_nome,
+            c.cor AS categoria_cor
         FROM tarefas t
         LEFT JOIN categorias c ON t.id_categoria = c.id
         WHERE t.id_usuario = ?
@@ -38,8 +38,10 @@ async function listarPorUsuario(usuarioId, status, idCategoria, ordenacao) {
         query += ` ORDER BY t.id DESC`;
     }
 
-    query += ` LIMIT ? OFFSET ?`;
-    valores.push(parseInt(limite), parseInt(offset));
+    const limiteInt = parseInt(limite, 10) || 10;
+    const offsetInt = parseInt(offset, 10) || 0;
+
+    query += ` LIMIT ${limiteInt} OFFSET ${offsetInt}`;
 
     const [tarefas] = await pool.execute(query, valores);
     return tarefas;
@@ -101,7 +103,7 @@ async function removerTag(tarefaId, tagId) {
 
 module.exports = {
     inserir,
-    listarPorUsuario,
+    listarPorUsuarioPaginado,
     buscarPorId,
     atualizar,
     deletar,
