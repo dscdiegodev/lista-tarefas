@@ -38,6 +38,9 @@ async function listarPorUsuario(usuarioId, status, idCategoria, ordenacao) {
         query += ` ORDER BY t.id DESC`;
     }
 
+    query += ` LIMIT ? OFFSET ?`;
+    valores.push(parseInt(limite), parseInt(offset));
+
     const [tarefas] = await pool.execute(query, valores);
     return tarefas;
 }
