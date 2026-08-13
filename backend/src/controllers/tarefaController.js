@@ -37,11 +37,16 @@ async function listar(req, res) {
             return res.status(401).json({ mensagem: 'Usuário não autenticado.' });
         }
 
-        const { status, id_categoria, ordenacao } = req.query;
+        const { status, id_categoria, ordenacao, pagina = 1, limite = 10 } = req.query;
 
-        const tarefas = await tarefaService.listarTarefas(usuarioId, status, id_categoria, ordenacao);
+        const tarefas = await tarefaService.listarTarefas(usuarioId, status, id_categoria, ordenacao, pagina, limite);
 
-        return res.status(200).json({ dados: tarefas });
+        return res.status(200).json({
+            sucesso: true,
+            paginaAtual: parseInt(pagina),
+            limitePorPagina: parseInt(limite),
+            dados: tarefas
+        });
     } catch (erro) {
         console.error('Erro ao listar tarefas:', erro);
         return res.status(500).json({ mensagem: 'Erro interno ao buscar tarefas.' });
