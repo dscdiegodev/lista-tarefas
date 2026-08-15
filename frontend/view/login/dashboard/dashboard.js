@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const token = localStorage.getItem('token');
     const mensagemDiv = document.getElementById('mensagem');
     const listaTarefas = document.getElementById('listaTarefas');
     const btnLogout = document.getElementById('btnLogout');
@@ -8,14 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let idTarefaEditando = null;
 
-    if (!token) {
-        alert('Acesso negado. Faça login novamente.');
-        window.location.href = '../login/login.html';
-        return;
-    }
-
     btnLogout.addEventListener('click', () => {
-        localStorage.removeItem('token');
         window.location.href = '../login.html';
     });
 
@@ -61,29 +53,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 3000);
     }
 
-    // Função para carregar categorias
     async function carregarCategorias() {
         try {
             const resposta = await fetch('http://localhost:3000/api/categorias', {
                 method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` }
+                credentials: 'include'
             });
             const resultado = await resposta.json();
 
             if (resposta.ok && resultado.dados) {
-                // 1. Preenche o select do formulário de tarefas
                 const optionsHtml = '<option value="">Selecione uma categoria (Opcional)</option>' +
                     resultado.dados.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('');
                 selectCategoria.innerHTML = optionsHtml;
 
-                // 2. Preenche o select do filtro por categoria
+                
                 const filtroCategoria = document.getElementById('filtroCategoria');
                 if (filtroCategoria) {
                     filtroCategoria.innerHTML = '<option value="">Todas as Categorias</option>' +
                         resultado.dados.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('');
                 }
 
-                // 3. Renderiza a lista visual na seção "Gerenciar Categorias"
                 const listaCategoriasEl = document.getElementById('listaCategorias');
                 if (listaCategoriasEl) {
                     if (resultado.dados.length === 0) {
@@ -103,6 +92,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                         `).join('');
                     }
                 }
+            } else if (resposta.status === 401) {
+                alert('Sessão expirada ou acesso negado. Faça login novamente.');
+                window.location.href = '../login.html';
             }
         } catch (erro) {
             console.error('Erro ao carregar categorias:', erro);
@@ -110,16 +102,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function carregarTagsParaSelect() {
-        const resposta = await fetch('http://localhost:3000/api/tags', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const resultado = await resposta.json();
-        const selectTags = document.getElementById('selectTags');
+        try {
+            const resposta = await fetch('http://localhost:3000/api/tags', {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const resultado = await resposta.json();
+            const selectTags = document.getElementById('selectTags');
 
-        if (resultado.dados) {
-            selectTags.innerHTML = resultado.dados.map(tag =>
-                `<option value="${tag.id}">#${tag.nome}</option>`
-            ).join('');
+            if (resultado.dados && selectTags) {
+                selectTags.innerHTML = resultado.dados.map(tag =>
+                    `<option value="${tag.id}">#${tag.nome}</option>`
+                ).join('');
+            }
+        } catch (erro) {
+            console.error('Erro ao carregar tags para select:', erro);
         }
     }
 
@@ -133,14 +130,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     try {
                         const resposta = await fetch(`http://localhost:3000/api/categorias/${id}`, {
                             method: 'DELETE',
-                            headers: { 'Authorization': `Bearer ${token}` }
+                            credentials: 'include'
                         });
                         const resultado = await resposta.json();
 
                         if (resposta.ok) {
                             mostrarToast('Categoria excluída com sucesso!', 'sucesso');
                             carregarCategorias();
-                            carregarTarefas(); // Atualiza a tabela para refletir mudanças nas tarefas
+                            carregarTarefas();
                         } else {
                             mostrarToast(resultado.erro || resultado.mensagem || 'Erro ao excluir categoria.', 'erro');
                         }
@@ -156,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const corAtual = e.target.getAttribute('data-cor');
 
                 const novoNome = prompt('Digite o novo nome da categoria:', nomeAtual);
-                if (novoNome === null) return; // Se clicou em cancelar
+                if (novoNome === null) return;
 
                 const novaCor = prompt('Digite a nova cor (ex: #3498db):', corAtual);
                 if (novaCor === null) return;
@@ -170,9 +167,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const resposta = await fetch(`http://localhost:3000/api/categorias/${id}`, {
                         method: 'PUT',
                         headers: {
-                            'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
                         },
+                        credentials: 'include',
                         body: JSON.stringify({ nome: novoNome.trim(), cor: novaCor.trim() })
                     });
                     const resultado = await resposta.json();
@@ -196,8 +193,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             mensagemDiv.innerText = 'Carregando tarefas...';
 
-            const tokenAtual = localStorage.getItem('token');
-
             const statusFiltro = document.getElementById('filtroStatus')?.value || '';
             const categoriaFiltro = document.getElementById('filtroCategoria')?.value || '';
             const ordenacao = document.getElementById('ordenarPor')?.value || '';
@@ -209,10 +204,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const resposta = await fetch(url + params.toString(), {
                 method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${tokenAtual}`,
-                    'Content-Type': 'application/json'
-                }
+                credentials: 'include'
             });
 
             const respostaServidor = await resposta.json();
@@ -222,7 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const listaDeTarefas = respostaServidor.dados;
 
                 if (!listaDeTarefas || listaDeTarefas.length === 0) {
-                    listaTarefas.innerHTML = `<tr><td colspan="5" style="text-align: center;">Nenhuma tarefa encontrada.</td></tr>`;
+                    listaTarefas.innerHTML = `<tr><td colspan="6" style="text-align: center;">Nenhuma tarefa encontrada.</td></tr>`;
 
                     document.getElementById('totalTarefas').innerText = 0;
                     document.getElementById('totalConcluidas').innerText = 0;
@@ -238,7 +230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('totalConcluidas').innerText = concluidas;
                 document.getElementById('totalPendentes').innerText = pendentes;
 
-                if (listaDeTarefas && ordenacao) {
+                if (ordenacao) {
                     listaDeTarefas.sort((a, b) => {
                         const dataA = new Date(a.prazo);
                         const dataB = new Date(b.prazo);
@@ -250,41 +242,44 @@ document.addEventListener('DOMContentLoaded', async () => {
                 listaDeTarefas.forEach(tarefa => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                            <td>${tarefa.titulo || tarefa.nome || 'Sem título'}</td>
-                            <td>${tarefa.descricao || 'Sem descrição'}</td>
-                            <td>
-                                <span style="background-color: ${tarefa.categoria_cor || '#3498db'}; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">
-                                ${tarefa.categoria_nome || 'Geral'}
+                        <td>${tarefa.titulo || tarefa.nome || 'Sem título'}</td>
+                        <td>${tarefa.descricao || 'Sem descrição'}</td>
+                        <td>
+                            <span style="background-color: ${tarefa.categoria_cor || '#3498db'}; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 12px;">
+                            ${tarefa.categoria_nome || 'Geral'}
                             </span>
-                            </td>
-                            <td>
-                                <strong>${tarefa.prioridade || 'Média'}</strong><br>
-                                <input type="checkbox" class="check-concluido" data-id="${tarefa.id}" ${tarefa.status === 'Concluída' ? 'checked' : ''}>
-                                <span style="${tarefa.status === 'Concluída' ? 'text-decoration: line-through; color: gray;' : ''}">
-                                    ${tarefa.status || 'Pendente'}
-                                </span>
-                            </td>
-                            <td>
-                                ${tarefa.tags && tarefa.tags.length > 0 ? tarefa.tags.map(tag => `<span style="background:#e2e8f0; color:#475569; padding:2px 6px; border-radius:4px; font-size:11px; margin-right:4px;">#${tag.nome}</span>`).join('') : '-'}
-                            </td>
-                            <td>
-                                <div style="display: flex; gap: 5px; align-items: center;">
-                                    <button class="btn-editar"
-                                        data-id="${tarefa.id}"
-                                        data-titulo="${tarefa.titulo || ''}"
-                                        data-descricao="${tarefa.descricao || ''}"
-                                        data-prazo="${tarefa.prazo ? tarefa.prazo.split('T')[0] : ''}"
-                                        data-categoria="${tarefa.id_categoria || ''}"
-                                        style="padding: 5px 10px; background: #f0ad4e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Editar</button>
-                                    <button class="btn-excluir"
-                                        data-id="${tarefa.id}"
-                                        style="padding: 5px 10px; background: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Excluir</button>
-                                </div>
-                            </td>
-                        `;
+                        </td>
+                        <td>
+                            <strong>${tarefa.prioridade || 'Média'}</strong><br>
+                            <input type="checkbox" class="check-concluido" data-id="${tarefa.id}" ${tarefa.status === 'Concluída' ? 'checked' : ''}>
+                            <span style="${tarefa.status === 'Concluída' ? 'text-decoration: line-through; color: gray;' : ''}">
+                                ${tarefa.status || 'Pendente'}
+                            </span>
+                        </td>
+                        <td>
+                            ${tarefa.tags && tarefa.tags.length > 0 ? tarefa.tags.map(tag => `<span style="background:#e2e8f0; color:#475569; padding:2px 6px; border-radius:4px; font-size:11px; margin-right:4px;">#${tag.nome}</span>`).join('') : '-'}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 5px; align-items: center;">
+                                <button class="btn-editar"
+                                    data-id="${tarefa.id}"
+                                    data-titulo="${tarefa.titulo || ''}"
+                                    data-descricao="${tarefa.descricao || ''}"
+                                    data-prazo="${tarefa.prazo ? tarefa.prazo.split('T')[0] : ''}"
+                                    data-categoria="${tarefa.id_categoria || ''}"
+                                    style="padding: 5px 10px; background: #f0ad4e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Editar</button>
+                                <button class="btn-excluir"
+                                    data-id="${tarefa.id}"
+                                    style="padding: 5px 10px; background: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Excluir</button>
+                            </div>
+                        </td>
+                    `;
                     listaTarefas.appendChild(tr);
                 });
 
+            } else if (resposta.status === 401) {
+                alert('Sessão expirada. Faça login novamente.');
+                window.location.href = '../login.html';
             } else {
                 mensagemDiv.style.color = '#d9534f';
                 mensagemDiv.innerText = respostaServidor.mensagem || 'Erro ao carregar as tarefas.';
@@ -304,9 +299,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const prazo = document.getElementById('prazoTarefa').value;
         const id_categoria = selectCategoria.value || null;
         const prioridade = document.getElementById('prioridadeTarefa').value || 'Média';
-        const selectTags = document.getElementById('selectTags');
-        const tags = Array.from(selectTags.selectedOptions).map(option => Number(option.value));
-
+        const selectTagsEl = document.getElementById('selectTags');
+        const tags = selectTagsEl ? Array.from(selectTagsEl.selectedOptions).map(option => Number(option.value)) : [];
 
         const isEditando = idTarefaEditando !== null;
         const url = isEditando
@@ -318,9 +312,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const resposta = await fetch(url, {
                 method: metodo,
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({ titulo, descricao, prazo, id_categoria, prioridade, tags })
             });
 
@@ -338,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('prazoTarefa').value = '';
                 selectCategoria.value = '';
                 idTarefaEditando = null;
-                document.getElementById('selectTags').selectedIndex = -1;
+                if (selectTagsEl) selectTagsEl.selectedIndex = -1;
 
                 const btnSubmit = formNovaTarefa.querySelector('button[type="submit"]');
                 if (btnSubmit) btnSubmit.innerText = 'Adicionar Tarefa';
@@ -356,12 +350,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function carregarTags() {
         try {
             const resposta = await fetch('http://localhost:3000/api/tags', {
-                headers: { 'Authorization': `Bearer ${token}` }
+                method: 'GET',
+                credentials: 'include'
             });
             const resultado = await resposta.json();
             const container = document.getElementById('containerTags');
 
-            if (resposta.ok && container) {
+            if (resposta.ok && container && resultado.dados) {
                 container.innerHTML = resultado.dados.map(tag => `
                 <label style="margin-right: 10px;">
                     <input type="checkbox" name="tags" value="${tag.id}"> ${tag.nome}
@@ -381,7 +376,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 try {
                     const resposta = await fetch(`http://localhost:3000/api/tarefas/${idTarefa}`, {
                         method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
+                        credentials: 'include'
                     });
 
                     const resultado = await resposta.json();
@@ -441,9 +436,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const resposta = await fetch(`http://localhost:3000/api/tarefas/${idTarefa}`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify({
                         titulo,
                         descricao,
@@ -491,9 +486,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const resposta = await fetch('http://localhost:3000/api/categorias', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     nome: nomeCategoria,
                     cor: corCategoria
