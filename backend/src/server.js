@@ -11,10 +11,22 @@ const tagRoutes = require('./routes/tagRoutes');
 
 const app = express();
 
+const origensPermitidas = [
+    'http://127.0.0.1:5500',
+    'http://localhost:5500'
+];
+
 app.use(cors({
-    origin: true,
+    origin: function (origin, callback) {
+        if (!origin || origensPermitidas.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Bloqueado pelo CORS'));
+        }
+    },
     credentials: true
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 
