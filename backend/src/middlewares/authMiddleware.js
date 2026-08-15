@@ -1,30 +1,12 @@
 const jwt = require('jsonwebtoken');
 
 function verificarAutenticacao(req, res, next) {
-    const authHeader = req.headers.authorization;
+    const token = req.cookies.token;
 
-    if (!authHeader) {
+    if (!token) {
         return res.status(401).json({
             sucesso: false,
-            erro: 'Token de autenticação não fornecido.'
-        });
-    }
-
-    const partesToken = authHeader.split(' ');
-
-    if (partesToken.length !== 2) {
-        return res.status(401).json({
-            sucesso: false,
-            erro: 'Erro no formato do token.'
-        });
-    }
-
-    const [esquema, token] = partesToken;
-
-    if (!/^Bearer$/i.test(esquema)) {
-        return res.status(401).json({
-            sucesso: false,
-            erro: 'Token mal formatado.'
+            erro: 'Acesso negado. Token de autenticação não fornecido nos cookies.'
         });
     }
 

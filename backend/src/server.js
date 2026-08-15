@@ -1,6 +1,7 @@
 const express = require('express');
 const swaggerDocs = require('./config/swagger');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
@@ -10,8 +11,12 @@ const tagRoutes = require('./routes/tagRoutes');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tarefas', tarefaRoutes);

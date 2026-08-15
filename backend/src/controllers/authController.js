@@ -27,12 +27,18 @@ async function entrar(req, res) {
         
         const { usuario, token } = await authService.autenticarUsuario(email, senha);
 
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 10000
+        });
+
         return res.status(200).json({
             sucesso: true,
             menssagem: 'Login realizado com sucesso!',
-            token,
             usuario
-        })
+        });
     } catch (error) {
         return res.status(400).json({
             erro: error.message
