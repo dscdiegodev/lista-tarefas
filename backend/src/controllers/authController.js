@@ -31,7 +31,7 @@ async function entrar(req, res) {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 24 * 60 * 60 * 10000
+            maxAge: 24 * 60 * 60 * 1000
         });
 
         return res.status(200).json({
