@@ -70,7 +70,7 @@
             </div>
 
             <div style="margin-top: 30px; margin-bottom: 30px;">
-                <h3 style="margin-bottom: 15px; color: #333;">Suas Tarefas</h3>
+                <h3 style="margin-bottom: 15px; color: #333;">Gerenciamento de Tarefas</h3>
 
                 <div class="filtros-container">
                     <div>
@@ -102,21 +102,43 @@
                     </div>
                 </div>
 
-                <table class="tabela-tarefas">
-                    <thead>
-                        <tr>
-                            <th style="width: 15%;">Título</th>
-                            <th style="width: 25%;">Descrição</th>
-                            <th style="width: 15%;">Categoria</th>
-                            <th style="width: 15%;">Prioridade / Status</th>
-                            <th style="width: 15%;">Tags</th>
-                            <th style="width: 15%;">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listaTarefas">
-                        <!-- Preenchido via JS -->
-                    </tbody>
-                </table>
+                <div style="margin-top: 25px;">
+                    <h4 style="margin-bottom: 10px; color: #333;">📌 Tarefas Pendentes</h4>
+                    <table class="tabela-tarefas">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">Título</th>
+                                <th style="width: 25%;">Descrição</th>
+                                <th style="width: 15%;">Categoria</th>
+                                <th style="width: 15%;">Prioridade / Prazo</th>
+                                <th style="width: 15%;">Tags</th>
+                                <th style="width: 15%;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaTarefasPendentes">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 35px;">
+                    <h4 style="margin-bottom: 10px; color: #28a745;">✅ Tarefas Concluídas</h4>
+                    <table class="tabela-tarefas" style="opacity: 0.85;">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">Título</th>
+                                <th style="width: 25%;">Descrição</th>
+                                <th style="width: 15%;">Categoria</th>
+                                <th style="width: 15%;">Prioridade / Prazo</th>
+                                <th style="width: 15%;">Tags</th>
+                                <th style="width: 15%;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaTarefasConcluidas">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
