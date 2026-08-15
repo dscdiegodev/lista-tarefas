@@ -1,4 +1,3 @@
-
 const form = document.getElementById('loginForm');
 const mensagemDiv = document.getElementById('mensagem');
 
@@ -12,28 +11,28 @@ form.addEventListener('submit', async (e) => {
     mensagemDiv.innerText = 'Autenticando...';
 
     try {
-        // Requisição POST para a sua rota de login que testamos no Swagger
         const resposta = await fetch('http://localhost:3000/api/auth/entrar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email, senha })
+            body: JSON.stringify({ email, senha }),
+            credentials: 'include'
         });
 
         const dados = await resposta.json();
 
         if (resposta.ok) {
             mensagemDiv.className = 'sucesso';
-            mensagemDiv.innerHTML = `Login realizado com sucesso!<br><strong>Token salvo no localStorage.</strong>`;
+            mensagemDiv.innerHTML = `Login realizado com sucesso!<br><strong>Sessão segura iniciada.</strong>`;
 
-            // Salva o token JWT no navegador para usar nas próximas requisições
-            localStorage.setItem('token', dados.token);
-
-            window.location.href = 'dashboard/dashboard.html';
+            setTimeout(() => {
+                window.location.href = 'dashboard/dashboard.html';
+            }, 1000);
+            
         } else {
             mensagemDiv.className = 'erro';
-            mensagemDiv.innerText = dados.mensagem || 'Erro ao fazer login.';
+            mensagemDiv.innerText = dados.erro || dados.mensagem || 'Erro ao fazer login.';
         }
     } catch (erro) {
         console.log(erro);
