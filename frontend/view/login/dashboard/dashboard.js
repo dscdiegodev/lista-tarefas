@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const mensagemDiv = document.getElementById('mensagem');
-    const listaTarefas = document.getElementById('listaTarefas');
+    const tabelaPendentes = document.getElementById('listaTarefasPendentes');
+    const tabelaConcluidas = document.getElementById('listaTarefasConcluidas');
     const btnLogout = document.getElementById('btnLogout');
     const formNovaTarefa = document.getElementById('formNovaTarefa');
     const selectCategoria = document.getElementById('categoriaTarefa');
@@ -66,7 +67,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     resultado.dados.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('');
                 selectCategoria.innerHTML = optionsHtml;
 
-                
                 const filtroCategoria = document.getElementById('filtroCategoria');
                 if (filtroCategoria) {
                     filtroCategoria.innerHTML = '<option value="">Todas as Categorias</option>' +
@@ -214,7 +214,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const listaDeTarefas = respostaServidor.dados;
 
                 if (!listaDeTarefas || listaDeTarefas.length === 0) {
-                    listaTarefas.innerHTML = `<tr><td colspan="6" style="text-align: center;">Nenhuma tarefa encontrada.</td></tr>`;
+                    tabelaPendentes.innerHTML = `<tr><td colspan="6" style="text-align: center;">Nenhuma tarefa encontrada.</td></tr>`;
+                    tabelaConcluidas.innerHTML = `<tr><td colspan="6" style="text-align: center;">Nenhuma tarefa concluída.</td></tr>`;
 
                     document.getElementById('totalTarefas').innerText = 0;
                     document.getElementById('totalConcluidas').innerText = 0;
@@ -238,8 +239,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                 }
 
-                listaTarefas.innerHTML = '';
+                tabelaPendentes.innerHTML = '';
+                tabelaConcluidas.innerHTML = '';
+
+                let temPendentes = false;
+                let temConcluidas = false;
+
                 listaDeTarefas.forEach(tarefa => {
+                    const isConcluida = tarefa.status === 'Concluída';
+
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${tarefa.titulo || tarefa.nome || 'Sem título'}</td>
@@ -251,8 +259,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </td>
                         <td>
                             <strong>${tarefa.prioridade || 'Média'}</strong><br>
-                            <input type="checkbox" class="check-concluido" data-id="${tarefa.id}" ${tarefa.status === 'Concluída' ? 'checked' : ''}>
-                            <span style="${tarefa.status === 'Concluída' ? 'text-decoration: line-through; color: gray;' : ''}">
+                            <input type="checkbox" class="check-concluido" data-id="${tarefa.id}" ${isConcluida ? 'checked' : ''}>
+                            <span style="${isConcluida ? 'text-decoration: line-through; color: gray;' : ''}">
                                 ${tarefa.status || 'Pendente'}
                             </span>
                         </td>
@@ -274,8 +282,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </div>
                         </td>
                     `;
-                    listaTarefas.appendChild(tr);
+
+                    if (isConcluida) {
+                        tabelaConcluidas.appendChild(tr);
+                        temConcluidas = true;
+                    } else {
+                        tabelaPendentes.appendChild(tr);
+                        temPendentes = true;
+                    }
                 });
+
+                if (!temPendentes) {
+                    tabelaPendentes.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #777;">Nenhuma tarefa pendente.</td></tr>`;
+                }
+                if (!temConcluidas) {
+                    tabelaConcluidas.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #777;">Nenhuma tarefa concluída.</td></tr>`;
+                }
 
             } else if (resposta.status === 401) {
                 alert('Sessão expirada. Faça login novamente.');
@@ -368,7 +390,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    listaTarefas.addEventListener('click', async (e) => {
+    const gerenciarCliqueTabela = async (e) => {
+        // Lógica de Exclusão
         if (e.target.classList.contains('btn-excluir')) {
             const idTarefa = e.target.getAttribute('data-id');
 
@@ -412,14 +435,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (btnSubmit) btnSubmit.innerText = 'Atualizar Tarefa';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-    });
+    };
 
-    document.getElementById('filtroStatus')?.addEventListener('change', carregarTarefas);
-    document.getElementById('filtroCategoria')?.addEventListener('change', carregarTarefas);
-    document.getElementById('ordenarPor')?.addEventListener('change', carregarTarefas);
+    tabelaPendentes.addEventListener('click', gerenciarCliqueTabela);
+    tabelaConcluidas.addEventListener('click', gerenciarCliqueTabela);
 
-    // Evento de alteração do status via checkbox na tabela
-    listaTarefas.addEventListener('change', async (e) => {
+    const gerenciarMudancaStatus = async (e) => {
         if (e.target.classList.contains('check-concluido')) {
             const idTarefa = e.target.getAttribute('data-id');
             const novoStatus = e.target.checked ? 'Concluída' : 'Pendente';
@@ -463,7 +484,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 e.target.checked = !e.target.checked;
             }
         }
-    });
+    };
+
+    tabelaPendentes.addEventListener('change', gerenciarMudancaStatus);
+    tabelaConcluidas.addEventListener('change', gerenciarMudancaStatus);
+
+    document.getElementById('filtroStatus')?.addEventListener('change', carregarTarefas);
+    document.getElementById('filtroCategoria')?.addEventListener('change', carregarTarefas);
+    document.getElementById('ordenarPor')?.addEventListener('change', carregarTarefas);
 
     carregarCategorias();
     carregarTagsParaSelect();
