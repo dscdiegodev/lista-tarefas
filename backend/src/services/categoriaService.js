@@ -56,6 +56,11 @@ async function atualizarCategoria(categoriaId, dados, usuarioId) {
 }
 
 async function deletarCategoria(categoriaId, usuarioId) {
+    const tarefasVinculadas = await tarefaRepository.contarPorCategoria(categoriaId, usuarioId);
+    if (tarefasVinculadas > 0) {
+        throw new Error('Não é possível excluir esta categoria pois existem tarefas ativas vinculadas a ela.');
+    }
+
     const affectedRows = await categoriaRepository.deletar(categoriaId, usuarioId);
 
     if (affectedRows === 0) {
